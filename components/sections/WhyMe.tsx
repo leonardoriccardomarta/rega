@@ -13,7 +13,7 @@ const icons = {
 
 export function WhyMe() {
   return (
-    <section id={SECTION_IDS.perche} className="bg-slate-50 py-20 md:py-28">
+    <section id={SECTION_IDS.perche} className="py-20 md:py-28">
       <SectionContainer>
         <FadeIn>
           <SectionHeading
@@ -23,19 +23,19 @@ export function WhyMe() {
           />
         </FadeIn>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2">
           {WHY_POINTS.map((point, index) => {
             const Icon = icons[point.id as keyof typeof icons];
             return (
-              <FadeIn key={point.id} delay={index * 70}>
-                <div className="h-full rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-700">
-                    <Icon className="h-5 w-5" />
+              <FadeIn key={point.id} delay={index * 80}>
+                <div className="h-full rounded-2xl border border-slate-200/80 bg-white p-7 shadow-soft">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-950">
+                  <h3 className="text-lg font-semibold text-midnight">
                     {point.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  <p className="mt-3 text-sm leading-relaxed text-black/60">
                     {point.description}
                   </p>
                 </div>

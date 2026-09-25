@@ -11,7 +11,7 @@ export function FinalCta() {
   return (
     <section
       id={SECTION_IDS.contatti}
-      className="bg-slate-950 py-20 text-white md:py-28"
+      className="bg-midnight py-20 text-white md:py-28"
     >
       <SectionContainer>
         <FadeIn>
@@ -58,7 +58,7 @@ export function FinalCta() {
               href={SITE.subitoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 hover:text-sky-300"
+              className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white"
             >
               Oppure apri lo shop Subito
               <ExternalLink className="h-4 w-4" />

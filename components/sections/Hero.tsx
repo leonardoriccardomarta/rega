@@ -5,35 +5,42 @@ import { SectionContainer } from "@/components/ui/SectionContainer";
 import { HERO, SITE, TRUST_ITEMS, SECTION_IDS } from "@/lib/constants";
 import { getContactLinks } from "@/lib/contact";
 
-export function Hero() {
+type HeroProps = {
+  featuredImage?: string;
+  featuredTitle?: string;
+  featuredPrice?: string;
+};
+
+export function Hero({
+  featuredImage,
+  featuredTitle,
+  featuredPrice,
+}: HeroProps) {
   const contact = getContactLinks();
 
   return (
-    <section className="relative overflow-hidden bg-[linear-gradient(120deg,#e0f2fe_0%,#ffffff_42%,#f8fafc_100%)] pt-28 pb-14 md:pt-36 md:pb-20">
-      <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-sky-300/30 blur-3xl" />
-      <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-sky-200/35 blur-3xl" />
-
+    <section className="relative overflow-hidden bg-hero pt-28 pb-16 md:pt-36 md:pb-24">
       <SectionContainer>
-        <div className="relative grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
+        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <FadeIn className="lg:col-span-7">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
               {SITE.name}
             </p>
-            <p className="mt-2 text-sm text-slate-500">{SITE.areaLine}</p>
+            <p className="mt-2 text-sm text-black/50">{SITE.areaLine}</p>
 
-            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-midnight sm:text-5xl lg:text-6xl">
               {HERO.headline}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-black/65 md:text-xl">
               {HERO.subheadline}
             </p>
 
-            <div className="mt-6 rounded-2xl border border-sky-200/80 bg-white/80 px-4 py-3 text-sm font-medium text-slate-600 shadow-sm backdrop-blur">
+            <div className="mt-6 rounded-2xl border border-primary/15 bg-white/80 px-4 py-3 text-sm font-medium text-black/70 shadow-soft backdrop-blur-sm">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 {TRUST_ITEMS.map((item, index) => (
                   <span key={item} className="inline-flex items-center">
                     {index > 0 && (
-                      <span className="mr-2 text-sky-400" aria-hidden="true">
+                      <span className="mr-2 text-primary/40" aria-hidden="true">
                         •
                       </span>
                     )}
@@ -59,7 +66,7 @@ export function Hero() {
                   <Button
                     href={contact.telHref}
                     variant="ghost"
-                    className="border-slate-300 px-6 py-3.5 text-base"
+                    className="px-6 py-3.5 text-base"
                   >
                     <Phone className="h-5 w-5" />
                     {HERO.callCta}
@@ -80,32 +87,49 @@ export function Hero() {
             </div>
 
             <div className="mt-6 md:hidden">
-              <Button href={`#${SECTION_IDS.inventario}`} variant="primary" className="w-full">
+              <Button
+                href={`#${SECTION_IDS.inventario}`}
+                variant="primary"
+                className="w-full"
+              >
                 Scorri le auto in vetrina
               </Button>
             </div>
           </FadeIn>
 
-          <FadeIn delay={120} className="lg:col-span-5">
-            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white p-7 shadow-[0_30px_80px_rgba(15,23,42,0.08)] md:p-8">
-              <p className="text-sm font-semibold text-sky-700">Come funziona</p>
-              <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
-                Guardi la vetrina, mi scrivi, chiudiamo senza passaggi inutili.
-              </p>
-              <ul className="mt-7 space-y-4 text-sm leading-relaxed text-slate-600">
-                <li className="flex gap-3">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
-                  Foto e dati aggiornati da me, non da un portale generico
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
-                  WhatsApp diretto: disponibilità in poche ore
-                </li>
-                <li className="flex gap-3">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
-                  Se ti convince, la vediamo a Treviglio
-                </li>
-              </ul>
+          <FadeIn delay={150} className="lg:col-span-5">
+            <div className="relative mx-auto max-w-lg lg:mr-0 lg:ml-auto">
+              <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 to-sky-200/40 blur-2xl" />
+              <div className="relative overflow-hidden rounded-[2rem] shadow-feature">
+                {featuredImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featuredImage}
+                    alt={featuredTitle || "Auto in vetrina"}
+                    className="h-[320px] w-full object-cover md:h-[400px]"
+                  />
+                ) : (
+                  <div className="flex h-[320px] w-full flex-col justify-end bg-[linear-gradient(160deg,#0b1f33,#1e3a5f)] p-7 md:h-[400px]">
+                    <p className="text-sm font-semibold text-sky-200">
+                      Come funziona
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-white">
+                      Guardi la vetrina, mi scrivi, chiudiamo senza giri.
+                    </p>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <p className="text-sm font-medium text-white/80">
+                    {featuredTitle ? "In evidenza ora" : "Come funziona"}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {featuredTitle
+                      ? `${featuredTitle}${featuredPrice ? ` · ${featuredPrice}` : ""}`
+                      : "Guardi, mi scrivi, chiudiamo"}
+                  </p>
+                </div>
+              </div>
             </div>
           </FadeIn>
         </div>

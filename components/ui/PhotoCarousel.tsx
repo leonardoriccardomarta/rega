@@ -95,7 +95,7 @@ export function PhotoCarousel({
 
       <div className="absolute bottom-0 left-0 right-0 z-10 p-5">
         {badge && (
-          <span className="mb-2 inline-block rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+          <span className="mb-2 inline-block rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
             {badge}
           </span>
         )}

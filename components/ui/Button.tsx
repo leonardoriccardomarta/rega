@@ -20,17 +20,17 @@ export type ButtonProps = ButtonOnlyProps | LinkProps;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-sky-600 text-white border border-sky-600 hover:bg-sky-500",
+    "bg-primary text-white border border-primary hover:bg-transparent hover:text-primary shadow-soft",
   secondary:
-    "bg-transparent text-white border border-white/30 hover:bg-white/10",
+    "bg-transparent text-white border border-white/35 hover:bg-white/10",
   whatsapp:
-    "bg-[#25D366] text-white border border-[#25D366] hover:bg-[#1fb855]",
+    "bg-[#25D366] text-white border border-[#25D366] hover:bg-[#1fb855] shadow-soft",
   ghost:
-    "bg-white text-slate-900 border border-slate-200 hover:border-slate-300",
+    "bg-white text-midnight border border-slate-200 hover:border-primary/40 shadow-soft",
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]";
 
 export function Button({
   variant = "primary",

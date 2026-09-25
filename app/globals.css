@@ -2,13 +2,33 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #0f172a;
+  --foreground: #0b1f33;
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --primary-light: #38bdf8;
+  --muted: #64748b;
+  --midnight: #0b1f33;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-muted: var(--muted);
+  --color-midnight: var(--midnight);
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-soft: 0px 4px 17px 0px #00000008;
+  --shadow-card: 0px 24px 64px 0px #00000012;
+  --shadow-feature: 0px 72px 129px 0px #0000001a;
+
+  --background-image-hero: linear-gradient(
+    120.3deg,
+    #d5f2ff 31.56%,
+    hsla(0, 0%, 100%, 0) 94.83%
+  );
 }
 
 @layer base {
@@ -19,9 +39,16 @@
   body {
     background: var(--background);
     color: var(--foreground);
+    font-family: var(--font-sans);
   }
 
   [id] {
     scroll-margin-top: 5.5rem;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
   }
 }

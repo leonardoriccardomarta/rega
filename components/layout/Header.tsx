@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { SectionContainer } from "@/components/ui/SectionContainer";
 import { NAV_LINKS, SECTION_IDS, SITE } from "@/lib/constants";
 import { getContactLinks } from "@/lib/contact";
 
@@ -12,7 +13,7 @@ export function Header() {
   const contact = getContactLinks();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -20,26 +21,28 @@ export function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-colors ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "border-slate-200/90 bg-white/90 backdrop-blur-md"
-          : "border-transparent bg-white/70 backdrop-blur-sm"
+          ? "border-b border-slate-200/80 bg-white/95 py-3 shadow-soft backdrop-blur-md"
+          : "border-b border-transparent bg-transparent py-5"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <SectionContainer className="flex items-center justify-between gap-4">
         <a href="#" className="min-w-0">
-          <p className="truncate text-lg font-semibold tracking-tight text-slate-950">
+          <p className="truncate text-base font-semibold text-midnight sm:text-lg">
             {SITE.name}
           </p>
-          <p className="truncate text-xs text-slate-500">{SITE.title}</p>
+          <p className="truncate text-[11px] text-black/50 sm:text-xs">
+            {SITE.title}
+          </p>
         </a>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
+              className="text-sm font-medium text-black/70 transition-colors hover:text-primary"
             >
               {link.label}
             </a>
@@ -57,13 +60,13 @@ export function Header() {
 
         <button
           type="button"
-          className="rounded-lg p-2 text-slate-800 md:hidden"
+          className="rounded-lg p-2 text-midnight md:hidden"
           aria-label={open ? "Chiudi menu" : "Apri menu"}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
-      </div>
+      </SectionContainer>
 
       {open && (
         <div className="border-t border-slate-200 bg-white px-4 py-4 md:hidden">
@@ -72,7 +75,7 @@ export function Header() {
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-lg px-2 py-2.5 text-sm font-medium text-slate-700"
+                className="rounded-lg px-2 py-2.5 text-sm font-medium text-midnight"
                 onClick={() => setOpen(false)}
               >
                 {link.label}

@@ -18,9 +18,13 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-export function Inventory() {
-  const [cars, setCars] = useState<CarListing[]>([]);
-  const [loading, setLoading] = useState(true);
+export function Inventory({
+  initialCars = [],
+}: {
+  initialCars?: CarListing[];
+}) {
+  const [cars, setCars] = useState<CarListing[]>(initialCars);
+  const [loading, setLoading] = useState(initialCars.length === 0);
 
   const load = useCallback(async () => {
     try {
@@ -40,7 +44,7 @@ export function Inventory() {
   }, [load]);
 
   return (
-    <section id={SECTION_IDS.inventario} className="bg-slate-50 py-16 md:py-24">
+    <section id={SECTION_IDS.inventario} className="bg-slate-50/80 py-16 md:py-24">
       <SectionContainer>
         <FadeIn>
           <SectionHeading
@@ -51,11 +55,11 @@ export function Inventory() {
         </FadeIn>
 
         {loading && (
-          <p className="text-center text-sm text-slate-500">Caricamento auto…</p>
+          <p className="text-center text-sm text-muted">Caricamento auto…</p>
         )}
 
         {!loading && cars.length === 0 && (
-          <p className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center text-slate-500">
+          <p className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center text-muted shadow-soft">
             Al momento non ci sono auto in vetrina. Scrivimi su WhatsApp: ti
             aggiorno su cosa sta arrivando.
           </p>
@@ -65,15 +69,16 @@ export function Inventory() {
           {cars.map((car, index) => {
             const wa = whatsappHrefForCar(car.title);
             const specs = carSpecs(car).slice(0, 9);
+            const cover = coverPhoto(car);
             const photos = car.photos?.length
               ? car.photos
-              : coverPhoto(car)
-                ? [coverPhoto(car)!]
+              : cover
+                ? [cover]
                 : [];
 
             return (
               <FadeIn key={`${car.id}-${car.updatedAt}`} delay={index * 50}>
-                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200/90 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-card">
                   <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
                     <PhotoCarousel
                       photos={photos}
@@ -83,31 +88,31 @@ export function Inventory() {
                     />
 
                     <div className="flex flex-col p-5 sm:p-7 md:p-8">
-                      <p className="text-sm text-slate-500">{car.location}</p>
-                      <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 md:text-[1.75rem]">
+                      <p className="text-sm text-muted">{car.location}</p>
+                      <h3 className="mt-1 text-2xl font-semibold tracking-tight text-midnight md:text-[1.75rem]">
                         {car.title}
                       </h3>
                       {car.description && (
-                        <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]">
+                        <p className="mt-3 text-sm leading-relaxed text-black/60 md:text-[15px]">
                           {car.description}
                         </p>
                       )}
 
                       {specs.length > 0 && (
                         <div className="mt-5">
-                          <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-sky-700">
+                          <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-primary">
                             Dati principali
                           </p>
                           <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
                             {specs.map((spec) => (
                               <div
                                 key={`${car.id}-${spec.label}`}
-                                className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                                className="rounded-xl border border-slate-100 bg-slate-50/80 px-3 py-2"
                               >
-                                <dt className="text-[10px] uppercase tracking-wide text-slate-400">
+                                <dt className="text-[10px] uppercase tracking-wide text-muted">
                                   {spec.label}
                                 </dt>
-                                <dd className="mt-0.5 font-medium text-slate-800">
+                                <dd className="mt-0.5 font-medium text-midnight">
                                   {spec.value}
                                 </dd>
                               </div>
@@ -122,7 +127,7 @@ export function Inventory() {
                             href={wa}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3.5 text-sm font-semibold text-white hover:bg-[#1fb855]"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3.5 text-sm font-semibold text-white shadow-soft transition hover:scale-[1.02] hover:bg-[#1fb855]"
                           >
                             <MessageCircle className="h-4 w-4" />
                             Interessato · WhatsApp
@@ -132,7 +137,7 @@ export function Inventory() {
                           href={car.subitoUrl || SITE.subitoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-3.5 text-sm font-semibold text-midnight shadow-soft transition hover:scale-[1.02] hover:border-primary/40"
                         >
                           <ExternalLink className="h-4 w-4" />
                           Annuncio Subito
