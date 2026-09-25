@@ -108,14 +108,15 @@ export function AdminApp() {
   const [message, setMessage] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const res = await fetch("/api/cars?all=1");
+    const res = await fetch("/api/cars?all=1", { credentials: "include" });
     if (!res.ok) {
       setAuthed(false);
-      return;
+      return false;
     }
     const data = (await res.json()) as { cars: CarListing[] };
     setCars(data.cars);
     setAuthed(true);
+    return true;
   }, []);
 
   useEffect(() => {
@@ -134,17 +135,27 @@ export function AdminApp() {
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      credentials: "include",
+      body: JSON.stringify({ password: password.trim() }),
     });
     if (!res.ok) {
-      setAuthError("Password non valida");
+      setAuthError(
+        "Password non valida. Su Vercel deve coincidere con ADMIN_PASSWORD (senza spazi).",
+      );
       return;
     }
-    await refresh();
+    setAuthed(true);
+    const ok = await refresh();
+    if (!ok) {
+      setAuthError(
+        "Login ok ma sessione non salvata. Riprova, oppure controlla che il sito sia in HTTPS.",
+      );
+      setAuthed(false);
+    }
   }
 
   async function handleLogout() {
-    await fetch("/api/auth", { method: "DELETE" });
+    await fetch("/api/auth", { method: "DELETE", credentials: "include" });
     setAuthed(false);
     setCars([]);
     setDraft(emptyDraft());
