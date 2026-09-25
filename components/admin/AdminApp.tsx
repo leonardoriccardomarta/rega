@@ -110,19 +110,19 @@ export function AdminApp() {
   const refresh = useCallback(async () => {
     const res = await fetch("/api/cars?all=1", { credentials: "include" });
     if (!res.ok) {
-      setAuthed(false);
-      return false;
+      return { ok: false as const, status: res.status };
     }
     const data = (await res.json()) as { cars: CarListing[] };
     setCars(data.cars);
     setAuthed(true);
-    return true;
+    return { ok: true as const };
   }, []);
 
   useEffect(() => {
     void (async () => {
       try {
-        await refresh();
+        const result = await refresh();
+        if (!result.ok) setAuthed(false);
       } finally {
         setChecking(false);
       }
@@ -140,18 +140,12 @@ export function AdminApp() {
     });
     if (!res.ok) {
       setAuthError(
-        "Password non valida. Su Vercel deve coincidere con ADMIN_PASSWORD (senza spazi).",
+        "Password non valida. Deve coincidere con ADMIN_PASSWORD su Vercel.",
       );
       return;
     }
-    setAuthed(true);
-    const ok = await refresh();
-    if (!ok) {
-      setAuthError(
-        "Login ok ma sessione non salvata. Riprova, oppure controlla che il sito sia in HTTPS.",
-      );
-      setAuthed(false);
-    }
+    // Full reload so the auth cookie is definitely sent on the next requests.
+    window.location.assign("/admin");
   }
 
   async function handleLogout() {
@@ -159,6 +153,7 @@ export function AdminApp() {
     setAuthed(false);
     setCars([]);
     setDraft(emptyDraft());
+    window.location.assign("/admin");
   }
 
   async function handleUpload(file: File) {

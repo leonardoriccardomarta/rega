@@ -5,16 +5,6 @@ import {
   timingSafeEqual,
 } from "@/lib/auth";
 
-function cookieOptions(maxAge: number) {
-  return {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    path: "/",
-    maxAge,
-    secure: process.env.NODE_ENV === "production",
-  };
-}
-
 export async function POST(request: Request) {
   const body = (await request.json()) as { password?: string };
   const password = (body.password ?? "").trim();
@@ -28,12 +18,28 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(ADMIN_COOKIE, expected, cookieOptions(60 * 60 * 24 * 60));
+  response.cookies.set({
+    name: ADMIN_COOKIE,
+    value: expected,
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 60,
+    secure: true,
+  });
   return response;
 }
 
 export async function DELETE() {
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(ADMIN_COOKIE, "", cookieOptions(0));
+  response.cookies.set({
+    name: ADMIN_COOKIE,
+    value: "",
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+    secure: true,
+  });
   return response;
 }

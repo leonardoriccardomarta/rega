@@ -31,13 +31,15 @@ npm run dev
 3. Spunta “Pubblica nello showcase”
 4. Salva → in pochi secondi compare sulla home
 
-## Hosting
+## Database
 
-I dati stanno in `data/cars.json` e le foto in `public/uploads/cars/`.
+Obbligatorio su Vercel:
 
-- **Ok** su server con disco persistente (VPS, Railway volume, ecc.)
-- Su **Vercel serverless** i file non restano dopo il redeploy: per produzione Vercel serve storage esterno (Blob/DB). Per una consegna semplice, meglio un host con filesystem.
+```env
+DATABASE_URL=postgresql://...@...neon.tech/neondb?sslmode=require
+ADMIN_PASSWORD=...
+NEXT_PUBLIC_CONTACT_PHONE=39...
+```
 
-## Consegna
-
-Tu setti telefono + password admin, raggiungi dominio, e Alberto gestisce le auto da solo.
+Le auto e le foto (come data URL) stanno su **Neon Postgres**: restano dopo i redeploy.
+La tabella `cars` viene creata automaticamente al primo avvio.

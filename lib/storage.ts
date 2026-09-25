@@ -1,59 +1,73 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
 import { DEFAULT_CARS, type CarInput, type CarListing } from "@/lib/cars";
+import { ensureSchema, sql } from "@/lib/db";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const CARS_FILE = path.join(DATA_DIR, "cars.json");
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "cars");
+type CarRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  subito_url: string | null;
+  price: number;
+  year: number;
+  km_label: string;
+  fuel: string;
+  transmission: string;
+  location: string;
+  brand: string | null;
+  model: string | null;
+  version: string | null;
+  body_type: string | null;
+  doors: string | null;
+  seats: string | null;
+  color: string | null;
+  emission_class: string | null;
+  condition: string | null;
+  registration: string | null;
+  badge: string | null;
+  photo_url: string | null;
+  published: boolean;
+  sort_order: number;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
 
-async function ensureDataFile() {
-  await mkdir(DATA_DIR, { recursive: true });
-  try {
-    await readFile(CARS_FILE, "utf8");
-  } catch {
-    await writeFile(CARS_FILE, JSON.stringify(DEFAULT_CARS, null, 2), "utf8");
-  }
-}
-
-export async function ensureUploadDir() {
-  await mkdir(UPLOAD_DIR, { recursive: true });
-}
-
-export function getUploadDir() {
-  return UPLOAD_DIR;
-}
-
-function sortCars(cars: CarListing[]) {
-  return [...cars].sort(
-    (a, b) => a.sortOrder - b.sortOrder || a.title.localeCompare(b.title),
-  );
-}
-
-function optional(value: string | undefined): string | undefined {
+function optional(value: string | undefined): string | null {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : undefined;
+  return trimmed ? trimmed : null;
 }
 
-export async function listCars(options?: {
-  publishedOnly?: boolean;
-}): Promise<CarListing[]> {
-  await ensureDataFile();
-  const raw = await readFile(CARS_FILE, "utf8");
-  const cars = JSON.parse(raw) as CarListing[];
-  const filtered = options?.publishedOnly
-    ? cars.filter((car) => car.published)
-    : cars;
-  return sortCars(filtered);
+function toIso(value: string | Date): string {
+  return value instanceof Date ? value.toISOString() : String(value);
 }
 
-export async function getCar(id: string): Promise<CarListing | null> {
-  const cars = await listCars();
-  return cars.find((car) => car.id === id) ?? null;
-}
-
-async function writeCars(cars: CarListing[]) {
-  await ensureDataFile();
-  await writeFile(CARS_FILE, JSON.stringify(sortCars(cars), null, 2), "utf8");
+function mapRow(row: CarRow): CarListing {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description ?? undefined,
+    subitoUrl: row.subito_url ?? undefined,
+    price: Number(row.price) || 0,
+    year: Number(row.year) || new Date().getFullYear(),
+    kmLabel: row.km_label ?? "",
+    fuel: row.fuel ?? "",
+    transmission: row.transmission ?? "",
+    location: row.location ?? "Treviglio (BG)",
+    brand: row.brand ?? undefined,
+    model: row.model ?? undefined,
+    version: row.version ?? undefined,
+    bodyType: row.body_type ?? undefined,
+    doors: row.doors ?? undefined,
+    seats: row.seats ?? undefined,
+    color: row.color ?? undefined,
+    emissionClass: row.emission_class ?? undefined,
+    condition: row.condition ?? undefined,
+    registration: row.registration ?? undefined,
+    badge: row.badge ?? undefined,
+    photoUrl: row.photo_url ?? undefined,
+    published: Boolean(row.published),
+    sortOrder: Number(row.sort_order) || 1,
+    createdAt: toIso(row.created_at),
+    updatedAt: toIso(row.updated_at),
+  };
 }
 
 function makeId(title: string) {
@@ -67,122 +81,244 @@ function makeId(title: string) {
   return `${base || "auto"}-${Date.now().toString(36)}`;
 }
 
-function buildCarFields(input: CarInput, fallback?: CarListing) {
-  return {
-    title: input.title?.trim() || fallback?.title || "",
-    description:
-      input.description !== undefined
-        ? optional(input.description)
-        : fallback?.description,
-    subitoUrl:
-      input.subitoUrl !== undefined
-        ? optional(input.subitoUrl)
-        : fallback?.subitoUrl,
-    price:
-      input.price !== undefined
-        ? Number(input.price) || 0
-        : (fallback?.price ?? 0),
-    year:
-      input.year !== undefined
-        ? Number(input.year) || new Date().getFullYear()
-        : (fallback?.year ?? new Date().getFullYear()),
-    kmLabel: input.kmLabel?.trim() || fallback?.kmLabel || "",
-    fuel: input.fuel?.trim() || fallback?.fuel || "",
-    transmission:
-      input.transmission?.trim() || fallback?.transmission || "",
-    location:
-      input.location?.trim() || fallback?.location || "Treviglio (BG)",
-    brand:
-      input.brand !== undefined ? optional(input.brand) : fallback?.brand,
-    model:
-      input.model !== undefined ? optional(input.model) : fallback?.model,
-    version:
-      input.version !== undefined
-        ? optional(input.version)
-        : fallback?.version,
-    bodyType:
-      input.bodyType !== undefined
-        ? optional(input.bodyType)
-        : fallback?.bodyType,
-    doors:
-      input.doors !== undefined ? optional(input.doors) : fallback?.doors,
-    seats:
-      input.seats !== undefined ? optional(input.seats) : fallback?.seats,
-    color:
-      input.color !== undefined ? optional(input.color) : fallback?.color,
-    emissionClass:
-      input.emissionClass !== undefined
-        ? optional(input.emissionClass)
-        : fallback?.emissionClass,
-    condition:
-      input.condition !== undefined
-        ? optional(input.condition)
-        : fallback?.condition,
-    registration:
-      input.registration !== undefined
-        ? optional(input.registration)
-        : fallback?.registration,
-    badge:
-      input.badge !== undefined
-        ? optional(input.badge)
-        : fallback?.badge,
-    photoUrl:
-      input.photoUrl !== undefined
-        ? optional(input.photoUrl)
-        : fallback?.photoUrl,
-    published:
-      input.published !== undefined
-        ? Boolean(input.published)
-        : (fallback?.published ?? true),
-    sortOrder:
-      input.sortOrder !== undefined
-        ? Number(input.sortOrder) || 1
-        : (fallback?.sortOrder ?? 1),
-  };
+async function seedIfEmpty() {
+  const db = sql();
+  const countRows = (await db`SELECT COUNT(*)::int AS count FROM cars`) as {
+    count: number;
+  }[];
+  if ((countRows[0]?.count ?? 0) > 0) return;
+
+  for (const car of DEFAULT_CARS) {
+    await db`
+      INSERT INTO cars (
+        id, title, description, subito_url, price, year, km_label, fuel,
+        transmission, location, brand, model, version, body_type, doors,
+        seats, color, emission_class, condition, registration, badge,
+        photo_url, published, sort_order, created_at, updated_at
+      ) VALUES (
+        ${car.id},
+        ${car.title},
+        ${car.description ?? null},
+        ${car.subitoUrl ?? null},
+        ${car.price},
+        ${car.year},
+        ${car.kmLabel},
+        ${car.fuel},
+        ${car.transmission},
+        ${car.location},
+        ${car.brand ?? null},
+        ${car.model ?? null},
+        ${car.version ?? null},
+        ${car.bodyType ?? null},
+        ${car.doors ?? null},
+        ${car.seats ?? null},
+        ${car.color ?? null},
+        ${car.emissionClass ?? null},
+        ${car.condition ?? null},
+        ${car.registration ?? null},
+        ${car.badge ?? null},
+        ${car.photoUrl ?? null},
+        ${car.published},
+        ${car.sortOrder},
+        ${car.createdAt},
+        ${car.updatedAt}
+      )
+      ON CONFLICT (id) DO NOTHING
+    `;
+  }
+}
+
+async function ready() {
+  await ensureSchema();
+  await seedIfEmpty();
+}
+
+export async function listCars(options?: {
+  publishedOnly?: boolean;
+}): Promise<CarListing[]> {
+  await ready();
+  const db = sql();
+  const rows = options?.publishedOnly
+    ? ((await db`
+        SELECT * FROM cars
+        WHERE published = TRUE
+        ORDER BY sort_order ASC, title ASC
+      `) as CarRow[])
+    : ((await db`
+        SELECT * FROM cars
+        ORDER BY sort_order ASC, title ASC
+      `) as CarRow[]);
+  return rows.map(mapRow);
+}
+
+export async function getCar(id: string): Promise<CarListing | null> {
+  await ready();
+  const db = sql();
+  const rows = (await db`SELECT * FROM cars WHERE id = ${id} LIMIT 1`) as CarRow[];
+  return rows[0] ? mapRow(rows[0]) : null;
 }
 
 export async function createCar(input: CarInput): Promise<CarListing> {
-  const cars = await listCars();
-  const timestamp = new Date().toISOString();
-  const fields = buildCarFields(input);
-  const car: CarListing = {
-    id: makeId(fields.title),
-    ...fields,
-    badge: fields.badge || "Disponibile",
-    sortOrder: fields.sortOrder || cars.length + 1,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-  cars.push(car);
-  await writeCars(cars);
-  return car;
+  await ready();
+  const db = sql();
+  const existing = await listCars();
+  const now = new Date().toISOString();
+  const id = makeId(input.title);
+  const published = input.published ?? true;
+  const sortOrder = input.sortOrder ?? existing.length + 1;
+
+  const rows = (await db`
+    INSERT INTO cars (
+      id, title, description, subito_url, price, year, km_label, fuel,
+      transmission, location, brand, model, version, body_type, doors,
+      seats, color, emission_class, condition, registration, badge,
+      photo_url, published, sort_order, created_at, updated_at
+    ) VALUES (
+      ${id},
+      ${input.title.trim()},
+      ${optional(input.description)},
+      ${optional(input.subitoUrl)},
+      ${Number(input.price) || 0},
+      ${Number(input.year) || new Date().getFullYear()},
+      ${input.kmLabel.trim()},
+      ${input.fuel.trim()},
+      ${input.transmission.trim()},
+      ${input.location.trim() || "Treviglio (BG)"},
+      ${optional(input.brand)},
+      ${optional(input.model)},
+      ${optional(input.version)},
+      ${optional(input.bodyType)},
+      ${optional(input.doors)},
+      ${optional(input.seats)},
+      ${optional(input.color)},
+      ${optional(input.emissionClass)},
+      ${optional(input.condition)},
+      ${optional(input.registration)},
+      ${optional(input.badge) ?? "Disponibile"},
+      ${optional(input.photoUrl)},
+      ${published},
+      ${sortOrder},
+      ${now},
+      ${now}
+    )
+    RETURNING *
+  `) as CarRow[];
+
+  return mapRow(rows[0]!);
 }
 
 export async function updateCar(
   id: string,
   input: Partial<CarInput>,
 ): Promise<CarListing | null> {
-  const cars = await listCars();
-  const index = cars.findIndex((car) => car.id === id);
-  if (index < 0) return null;
+  await ready();
+  const current = await getCar(id);
+  if (!current) return null;
 
-  const current = cars[index];
-  const fields = buildCarFields({ ...current, ...input } as CarInput, current);
-  const next: CarListing = {
-    ...current,
-    ...fields,
-    updatedAt: new Date().toISOString(),
+  const db = sql();
+  const now = new Date().toISOString();
+  const next = {
+    title: input.title?.trim() ?? current.title,
+    description:
+      input.description !== undefined
+        ? optional(input.description)
+        : (current.description ?? null),
+    subitoUrl:
+      input.subitoUrl !== undefined
+        ? optional(input.subitoUrl)
+        : (current.subitoUrl ?? null),
+    price:
+      input.price !== undefined ? Number(input.price) || 0 : current.price,
+    year:
+      input.year !== undefined
+        ? Number(input.year) || current.year
+        : current.year,
+    kmLabel: input.kmLabel?.trim() ?? current.kmLabel,
+    fuel: input.fuel?.trim() ?? current.fuel,
+    transmission: input.transmission?.trim() ?? current.transmission,
+    location: input.location?.trim() ?? current.location,
+    brand:
+      input.brand !== undefined ? optional(input.brand) : (current.brand ?? null),
+    model:
+      input.model !== undefined ? optional(input.model) : (current.model ?? null),
+    version:
+      input.version !== undefined
+        ? optional(input.version)
+        : (current.version ?? null),
+    bodyType:
+      input.bodyType !== undefined
+        ? optional(input.bodyType)
+        : (current.bodyType ?? null),
+    doors:
+      input.doors !== undefined ? optional(input.doors) : (current.doors ?? null),
+    seats:
+      input.seats !== undefined ? optional(input.seats) : (current.seats ?? null),
+    color:
+      input.color !== undefined ? optional(input.color) : (current.color ?? null),
+    emissionClass:
+      input.emissionClass !== undefined
+        ? optional(input.emissionClass)
+        : (current.emissionClass ?? null),
+    condition:
+      input.condition !== undefined
+        ? optional(input.condition)
+        : (current.condition ?? null),
+    registration:
+      input.registration !== undefined
+        ? optional(input.registration)
+        : (current.registration ?? null),
+    badge:
+      input.badge !== undefined ? optional(input.badge) : (current.badge ?? null),
+    photoUrl:
+      input.photoUrl !== undefined
+        ? optional(input.photoUrl)
+        : (current.photoUrl ?? null),
+    published:
+      input.published !== undefined ? Boolean(input.published) : current.published,
+    sortOrder:
+      input.sortOrder !== undefined
+        ? Number(input.sortOrder) || current.sortOrder
+        : current.sortOrder,
   };
 
-  cars[index] = next;
-  await writeCars(cars);
-  return next;
+  const rows = (await db`
+    UPDATE cars SET
+      title = ${next.title},
+      description = ${next.description},
+      subito_url = ${next.subitoUrl},
+      price = ${next.price},
+      year = ${next.year},
+      km_label = ${next.kmLabel},
+      fuel = ${next.fuel},
+      transmission = ${next.transmission},
+      location = ${next.location},
+      brand = ${next.brand},
+      model = ${next.model},
+      version = ${next.version},
+      body_type = ${next.bodyType},
+      doors = ${next.doors},
+      seats = ${next.seats},
+      color = ${next.color},
+      emission_class = ${next.emissionClass},
+      condition = ${next.condition},
+      registration = ${next.registration},
+      badge = ${next.badge},
+      photo_url = ${next.photoUrl},
+      published = ${next.published},
+      sort_order = ${next.sortOrder},
+      updated_at = ${now}
+    WHERE id = ${id}
+    RETURNING *
+  `) as CarRow[];
+
+  return rows[0] ? mapRow(rows[0]) : null;
 }
 
 export async function deleteCar(id: string): Promise<boolean> {
-  const cars = await listCars();
-  const next = cars.filter((car) => car.id !== id);
-  if (next.length === cars.length) return false;
-  await writeCars(next);
-  return true;
+  await ready();
+  const db = sql();
+  const rows = (await db`
+    DELETE FROM cars WHERE id = ${id} RETURNING id
+  `) as { id: string }[];
+  return rows.length > 0;
 }
