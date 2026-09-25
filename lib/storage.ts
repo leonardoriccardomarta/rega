@@ -1,4 +1,9 @@
-import { DEFAULT_CARS, type CarInput, type CarListing } from "@/lib/cars";
+import {
+  DEFAULT_CARS,
+  normalizePhotos,
+  type CarInput,
+  type CarListing,
+} from "@/lib/cars";
 import { ensureSchema, sql } from "@/lib/db";
 
 type CarRow = {
@@ -24,6 +29,7 @@ type CarRow = {
   registration: string | null;
   badge: string | null;
   photo_url: string | null;
+  photos: unknown;
   published: boolean;
   sort_order: number;
   created_at: string | Date;
@@ -39,7 +45,31 @@ function toIso(value: string | Date): string {
   return value instanceof Date ? value.toISOString() : String(value);
 }
 
+function parsePhotos(raw: unknown, fallbackUrl?: string | null): string[] {
+  if (Array.isArray(raw)) {
+    return normalizePhotos(
+      raw.filter((item): item is string => typeof item === "string"),
+      fallbackUrl,
+    );
+  }
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed)) {
+        return normalizePhotos(
+          parsed.filter((item): item is string => typeof item === "string"),
+          fallbackUrl,
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return normalizePhotos(undefined, fallbackUrl);
+}
+
 function mapRow(row: CarRow): CarListing {
+  const photos = parsePhotos(row.photos, row.photo_url);
   return {
     id: row.id,
     title: row.title,
@@ -62,7 +92,8 @@ function mapRow(row: CarRow): CarListing {
     condition: row.condition ?? undefined,
     registration: row.registration ?? undefined,
     badge: row.badge ?? undefined,
-    photoUrl: row.photo_url ?? undefined,
+    photoUrl: photos[0],
+    photos,
     published: Boolean(row.published),
     sortOrder: Number(row.sort_order) || 1,
     createdAt: toIso(row.created_at),
@@ -89,12 +120,13 @@ async function seedIfEmpty() {
   if ((countRows[0]?.count ?? 0) > 0) return;
 
   for (const car of DEFAULT_CARS) {
+    const photos = normalizePhotos(car.photos, car.photoUrl);
     await db`
       INSERT INTO cars (
         id, title, description, subito_url, price, year, km_label, fuel,
         transmission, location, brand, model, version, body_type, doors,
         seats, color, emission_class, condition, registration, badge,
-        photo_url, published, sort_order, created_at, updated_at
+        photo_url, photos, published, sort_order, created_at, updated_at
       ) VALUES (
         ${car.id},
         ${car.title},
@@ -117,7 +149,8 @@ async function seedIfEmpty() {
         ${car.condition ?? null},
         ${car.registration ?? null},
         ${car.badge ?? null},
-        ${car.photoUrl ?? null},
+        ${photos[0] ?? null},
+        ${JSON.stringify(photos)}::jsonb,
         ${car.published},
         ${car.sortOrder},
         ${car.createdAt},
@@ -166,13 +199,14 @@ export async function createCar(input: CarInput): Promise<CarListing> {
   const id = makeId(input.title);
   const published = input.published ?? true;
   const sortOrder = input.sortOrder ?? existing.length + 1;
+  const photos = normalizePhotos(input.photos, input.photoUrl);
 
   const rows = (await db`
     INSERT INTO cars (
       id, title, description, subito_url, price, year, km_label, fuel,
       transmission, location, brand, model, version, body_type, doors,
       seats, color, emission_class, condition, registration, badge,
-      photo_url, published, sort_order, created_at, updated_at
+      photo_url, photos, published, sort_order, created_at, updated_at
     ) VALUES (
       ${id},
       ${input.title.trim()},
@@ -195,7 +229,8 @@ export async function createCar(input: CarInput): Promise<CarListing> {
       ${optional(input.condition)},
       ${optional(input.registration)},
       ${optional(input.badge) ?? "Disponibile"},
-      ${optional(input.photoUrl)},
+      ${photos[0] ?? null},
+      ${JSON.stringify(photos)}::jsonb,
       ${published},
       ${sortOrder},
       ${now},
@@ -217,6 +252,14 @@ export async function updateCar(
 
   const db = sql();
   const now = new Date().toISOString();
+  const photos =
+    input.photos !== undefined || input.photoUrl !== undefined
+      ? normalizePhotos(
+          input.photos !== undefined ? input.photos : current.photos,
+          input.photoUrl !== undefined ? input.photoUrl : current.photoUrl,
+        )
+      : current.photos;
+
   const next = {
     title: input.title?.trim() ?? current.title,
     description:
@@ -269,10 +312,6 @@ export async function updateCar(
         : (current.registration ?? null),
     badge:
       input.badge !== undefined ? optional(input.badge) : (current.badge ?? null),
-    photoUrl:
-      input.photoUrl !== undefined
-        ? optional(input.photoUrl)
-        : (current.photoUrl ?? null),
     published:
       input.published !== undefined ? Boolean(input.published) : current.published,
     sortOrder:
@@ -303,7 +342,8 @@ export async function updateCar(
       condition = ${next.condition},
       registration = ${next.registration},
       badge = ${next.badge},
-      photo_url = ${next.photoUrl},
+      photo_url = ${photos[0] ?? null},
+      photos = ${JSON.stringify(photos)}::jsonb,
       published = ${next.published},
       sort_order = ${next.sortOrder},
       updated_at = ${now}

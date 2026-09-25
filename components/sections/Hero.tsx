@@ -1,40 +1,49 @@
-import { Car, ExternalLink, MessageCircle, Phone } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { SectionContainer } from "@/components/ui/SectionContainer";
-import { HERO, SITE, TRUST_ITEMS } from "@/lib/constants";
+import { HERO, SITE, TRUST_ITEMS, SECTION_IDS } from "@/lib/constants";
 import { getContactLinks } from "@/lib/contact";
 
 export function Hero() {
   const contact = getContactLinks();
 
   return (
-    <section className="relative overflow-hidden bg-slate-950 pt-28 pb-16 text-white md:pt-36 md:pb-24">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(245,158,11,0.18),_transparent_50%),radial-gradient(ellipse_at_bottom_left,_rgba(15,23,42,1),_transparent_60%)]" />
+    <section className="relative overflow-hidden bg-[linear-gradient(120deg,#e0f2fe_0%,#ffffff_42%,#f8fafc_100%)] pt-28 pb-14 md:pt-36 md:pb-20">
+      <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-sky-300/30 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-sky-200/35 blur-3xl" />
+
       <SectionContainer>
-        <div className="relative grid items-center gap-12 lg:grid-cols-12">
+        <div className="relative grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
           <FadeIn className="lg:col-span-7">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70">
-              <Car className="h-3.5 w-3.5 text-amber-400" />
-              {SITE.name} · {SITE.areaLine}
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">
+              {SITE.name}
             </p>
-            <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+            <p className="mt-2 text-sm text-slate-500">{SITE.areaLine}</p>
+
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
               {HERO.headline}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/65 md:text-xl">
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl">
               {HERO.subheadline}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-x-3 gap-y-2 text-sm font-medium text-white/55">
-              {TRUST_ITEMS.map((item, index) => (
-                <span key={item} className="inline-flex items-center gap-3">
-                  {index > 0 && <span className="text-amber-400/50">•</span>}
-                  {item}
-                </span>
-              ))}
+            <div className="mt-6 rounded-2xl border border-sky-200/80 bg-white/80 px-4 py-3 text-sm font-medium text-slate-600 shadow-sm backdrop-blur">
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                {TRUST_ITEMS.map((item, index) => (
+                  <span key={item} className="inline-flex items-center">
+                    {index > 0 && (
+                      <span className="mr-2 text-sky-400" aria-hidden="true">
+                        •
+                      </span>
+                    )}
+                    {item}
+                  </span>
+                ))}
+              </p>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-8 hidden flex-col gap-3 sm:flex-row sm:flex-wrap md:flex">
               {contact ? (
                 <>
                   <Button
@@ -47,48 +56,54 @@ export function Hero() {
                     <MessageCircle className="h-5 w-5" />
                     {HERO.whatsappCta}
                   </Button>
-                  <Button href={contact.telHref} variant="secondary" className="px-6 py-3.5 text-base">
+                  <Button
+                    href={contact.telHref}
+                    variant="ghost"
+                    className="border-slate-300 px-6 py-3.5 text-base"
+                  >
                     <Phone className="h-5 w-5" />
                     {HERO.callCta}
                   </Button>
+                  <Button
+                    href={`#${SECTION_IDS.inventario}`}
+                    variant="primary"
+                    className="px-6 py-3.5 text-base"
+                  >
+                    Vedi le auto
+                  </Button>
                 </>
               ) : (
-                <p className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
-                  Imposta <code className="text-amber-200">NEXT_PUBLIC_CONTACT_PHONE</code>{" "}
-                  per attivare WhatsApp e chiamata.
-                </p>
+                <Button href={`#${SECTION_IDS.inventario}`} variant="primary">
+                  Vedi le auto in vetrina
+                </Button>
               )}
-              <Button
-                href={SITE.subitoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="ghost"
-                className="border-white/20 bg-white/10 text-white hover:bg-white/15"
-              >
-                <ExternalLink className="h-4 w-4" />
-                {HERO.subitoCta}
+            </div>
+
+            <div className="mt-6 md:hidden">
+              <Button href={`#${SECTION_IDS.inventario}`} variant="primary" className="w-full">
+                Scorri le auto in vetrina
               </Button>
             </div>
           </FadeIn>
 
           <FadeIn delay={120} className="lg:col-span-5">
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-800 to-slate-900 p-8 shadow-2xl">
-              <p className="text-sm font-medium text-amber-400">Vetrina auto</p>
-              <p className="mt-3 text-2xl font-semibold tracking-tight">
-                Guardi le auto, mi contatti, chiudiamo senza passaggi inutili.
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white p-7 shadow-[0_30px_80px_rgba(15,23,42,0.08)] md:p-8">
+              <p className="text-sm font-semibold text-sky-700">Come funziona</p>
+              <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+                Guardi la vetrina, mi scrivi, chiudiamo senza passaggi inutili.
               </p>
-              <ul className="mt-8 space-y-4 text-sm text-white/70">
+              <ul className="mt-7 space-y-4 text-sm leading-relaxed text-slate-600">
                 <li className="flex gap-3">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
-                  Inventario aggiornato sul sito
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                  Foto e dati aggiornati da me, non da un portale generico
                 </li>
                 <li className="flex gap-3">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
-                  WhatsApp diretto, senza form di prenotazione
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                  WhatsApp diretto: disponibilità in poche ore
                 </li>
                 <li className="flex gap-3">
-                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
-                  Stessa zona: Treviglio e Bergamo
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                  Se ti convince, la vediamo a Treviglio
                 </li>
               </ul>
             </div>

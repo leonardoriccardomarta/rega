@@ -13,7 +13,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://regantini.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://rega-ecru.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl),

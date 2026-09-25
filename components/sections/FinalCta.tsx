@@ -46,9 +46,9 @@ export function FinalCta() {
                   </Button>
                 </>
               ) : (
-                <p className="text-sm text-amber-200/90">
+                <p className="text-sm text-sky-200/90">
                   Aggiungi il numero in{" "}
-                  <code className="text-amber-100">NEXT_PUBLIC_CONTACT_PHONE</code>{" "}
+                  <code className="text-sky-100">NEXT_PUBLIC_CONTACT_PHONE</code>{" "}
                   per attivare i contatti.
                 </p>
               )}
@@ -58,7 +58,7 @@ export function FinalCta() {
               href={SITE.subitoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 hover:text-amber-300"
+              className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 hover:text-sky-300"
             >
               Oppure apri lo shop Subito
               <ExternalLink className="h-4 w-4" />

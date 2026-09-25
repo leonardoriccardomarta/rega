@@ -20,7 +20,7 @@ export type ButtonProps = ButtonOnlyProps | LinkProps;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-amber-500 text-slate-950 border border-amber-500 hover:bg-amber-400",
+    "bg-sky-600 text-white border border-sky-600 hover:bg-sky-500",
   secondary:
     "bg-transparent text-white border border-white/30 hover:bg-white/10",
   whatsapp:

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { ExternalLink, MessageCircle } from "lucide-react";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { PhotoCarousel } from "@/components/ui/PhotoCarousel";
 import { SectionContainer } from "@/components/ui/SectionContainer";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { carSpecs, type CarListing } from "@/lib/cars";
+import { carSpecs, coverPhoto, type CarListing } from "@/lib/cars";
 import { SECTION_IDS, SITE } from "@/lib/constants";
 import { whatsappHrefForCar } from "@/lib/contact";
 
@@ -34,18 +35,18 @@ export function Inventory() {
 
   useEffect(() => {
     void load();
-    const id = window.setInterval(() => void load(), 15000);
+    const id = window.setInterval(() => void load(), 20000);
     return () => window.clearInterval(id);
   }, [load]);
 
   return (
-    <section id={SECTION_IDS.inventario} className="bg-white py-20 md:py-28">
+    <section id={SECTION_IDS.inventario} className="bg-slate-50 py-16 md:py-24">
       <SectionContainer>
         <FadeIn>
           <SectionHeading
-            eyebrow="Inventario"
-            title="Auto in vendita"
-            subtitle="Vetrina aggiornata da Alberto: titolo, descrizione, dati principali e link all'annuncio Subito."
+            eyebrow="In vetrina"
+            title="Auto disponibili ora"
+            subtitle="Scorri le foto, leggi i dati, apri l’annuncio Subito o scrivimi su WhatsApp se una macchina ti convince."
           />
         </FadeIn>
 
@@ -54,67 +55,56 @@ export function Inventory() {
         )}
 
         {!loading && cars.length === 0 && (
-          <p className="rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center text-slate-500">
-            Nessuna auto in vetrina al momento. Torna a breve o scrivimi su
-            WhatsApp.
+          <p className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-12 text-center text-slate-500">
+            Al momento non ci sono auto in vetrina. Scrivimi su WhatsApp: ti
+            aggiorno su cosa sta arrivando.
           </p>
         )}
 
-        <div className="space-y-8">
+        <div className="space-y-7 md:space-y-9">
           {cars.map((car, index) => {
             const wa = whatsappHrefForCar(car.title);
-            const specs = carSpecs(car);
-            return (
-              <FadeIn key={`${car.id}-${car.updatedAt}`} delay={index * 60}>
-                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
-                  <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-                    <div className="relative min-h-[240px] bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 lg:min-h-full">
-                      {car.photoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={car.photoUrl}
-                          alt={car.title}
-                          className="absolute inset-0 h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(245,158,11,0.25),transparent_45%)]" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-5">
-                        {car.badge && (
-                          <span className="mb-2 inline-block rounded-full bg-amber-400 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-950">
-                            {car.badge}
-                          </span>
-                        )}
-                        <p className="text-3xl font-semibold text-white">
-                          {formatPrice(car.price)}
-                        </p>
-                      </div>
-                    </div>
+            const specs = carSpecs(car).slice(0, 9);
+            const photos = car.photos?.length
+              ? car.photos
+              : coverPhoto(car)
+                ? [coverPhoto(car)!]
+                : [];
 
-                    <div className="flex flex-col p-6 md:p-8">
+            return (
+              <FadeIn key={`${car.id}-${car.updatedAt}`} delay={index * 50}>
+                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200/90 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.06)]">
+                  <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+                    <PhotoCarousel
+                      photos={photos}
+                      alt={car.title}
+                      priceLabel={formatPrice(car.price)}
+                      badge={car.badge}
+                    />
+
+                    <div className="flex flex-col p-5 sm:p-7 md:p-8">
                       <p className="text-sm text-slate-500">{car.location}</p>
-                      <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                      <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 md:text-[1.75rem]">
                         {car.title}
                       </h3>
                       {car.description && (
-                        <p className="mt-4 text-sm leading-relaxed text-slate-600 md:text-base">
+                        <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-[15px]">
                           {car.description}
                         </p>
                       )}
 
                       {specs.length > 0 && (
-                        <div className="mt-6">
-                          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-700">
-                            Informazioni di base
+                        <div className="mt-5">
+                          <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-sky-700">
+                            Dati principali
                           </p>
-                          <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm sm:grid-cols-3">
+                          <dl className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
                             {specs.map((spec) => (
                               <div
                                 key={`${car.id}-${spec.label}`}
                                 className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
                               >
-                                <dt className="text-[11px] uppercase tracking-wide text-slate-400">
+                                <dt className="text-[10px] uppercase tracking-wide text-slate-400">
                                   {spec.label}
                                 </dt>
                                 <dd className="mt-0.5 font-medium text-slate-800">
@@ -126,26 +116,26 @@ export function Inventory() {
                         </div>
                       )}
 
-                      <div className="mt-auto flex flex-col gap-3 pt-6 sm:flex-row">
-                        {wa ? (
+                      <div className="mt-auto flex flex-col gap-2.5 pt-6 sm:flex-row">
+                        {wa && (
                           <a
                             href={wa}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1fb855]"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 py-3.5 text-sm font-semibold text-white hover:bg-[#1fb855]"
                           >
                             <MessageCircle className="h-4 w-4" />
                             Interessato · WhatsApp
                           </a>
-                        ) : null}
+                        )}
                         <a
                           href={car.subitoUrl || SITE.subitoUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-50"
+                          className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-900 hover:bg-slate-50"
                         >
                           <ExternalLink className="h-4 w-4" />
-                          Vedi su Subito
+                          Annuncio Subito
                         </a>
                       </div>
                     </div>
@@ -155,21 +145,6 @@ export function Inventory() {
             );
           })}
         </div>
-
-        <FadeIn delay={200}>
-          <p className="mt-10 text-center text-sm text-slate-500">
-            Shop completo anche su{" "}
-            <a
-              href={SITE.subitoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-amber-700 hover:underline"
-            >
-              Subito Impresa+ Regantini
-            </a>
-            .
-          </p>
-        </FadeIn>
       </SectionContainer>
     </section>
   );

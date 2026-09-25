@@ -1,7 +1,7 @@
 export const SITE = {
   name: "Alberto Regantini",
-  title: "Auto usate · Treviglio",
-  tagline: "Auto selezionate, contatto diretto",
+  title: "Auto usate a Treviglio",
+  tagline: "Le auto che vendo, spiegate bene",
   areaLine: "Treviglio (BG) e provincia di Bergamo",
   subitoUrl:
     process.env.NEXT_PUBLIC_SUBITO_URL?.trim() ||
@@ -16,65 +16,65 @@ export const SECTION_IDS = {
 } as const;
 
 export const NAV_LINKS = [
-  { label: "Auto in vendita", href: `#${SECTION_IDS.inventario}` },
-  { label: "Perché me", href: `#${SECTION_IDS.perche}` },
+  { label: "In vetrina", href: `#${SECTION_IDS.inventario}` },
+  { label: "Come lavoro", href: `#${SECTION_IDS.perche}` },
   { label: "Chi sono", href: `#${SECTION_IDS.chiSono}` },
   { label: "Contatti", href: `#${SECTION_IDS.contatti}` },
 ] as const;
 
 export const HERO = {
-  headline: "Auto usate chiare, senza giri inutili.",
+  headline: "L’auto giusta, senza perdere tempo al telefono.",
   subheadline:
-    "Seleziono e vendo auto a Treviglio e provincia. Guardi le schede, mi scrivi su WhatsApp e ti dico subito disponibilità, condizioni e possibilità di prova.",
+    "A Treviglio scelgo e vendo auto usate con schede chiare. Guardi le foto, mi scrivi su WhatsApp e ti dico subito se c’è ancora e come possiamo vederla.",
   whatsappCta: "Scrivimi su WhatsApp",
   callCta: "Chiamami",
-  subitoCta: "Vedi anche su Subito",
+  subitoCta: "Apri lo shop Subito",
 } as const;
 
 export const TRUST_ITEMS = [
-  "Treviglio (BG)",
+  "Treviglio · Bergamo",
   "Contatto diretto",
-  "Schede chiare",
+  "Foto e dati aggiornati",
   "Niente call center",
 ] as const;
 
 export const WHY_POINTS = [
   {
     id: "diretto",
-    title: "Parli con me",
+    title: "Parli con me, punto",
     description:
-      "Niente centralini: mi scrivi, ti rispondo e ti dico se l'auto c'è ancora e in che condizioni è.",
+      "Niente centralini e risposte a caso. Mi scrivi, ti rispondo io e ti dico se l’auto è ancora disponibile.",
   },
   {
     id: "chiaro",
-    title: "Schede trasparenti",
+    title: "Schede leggibili",
     description:
-      "Chilometri, anno, alimentazione e prezzo in evidenza. Se qualcosa non è chiaro, lo chiarisco subito.",
+      "Prezzo, km, anno e condizioni in evidenza. Se qualcosa non torna, lo chiarisco prima che tu perda tempo.",
   },
   {
     id: "locale",
-    title: "Zona Bergamo",
+    title: "Qui vicino a te",
     description:
-      "Opero da Treviglio: comodo per chi cerca un'auto usata in provincia di Bergamo e dintorni.",
+      "Lavoro da Treviglio: comodo se cerchi un’usata in provincia di Bergamo senza girare mezza Lombardia.",
   },
   {
     id: "prova",
-    title: "Prova e confronto",
+    title: "Si chiude di persona",
     description:
-      "Possiamo sentirci, valutare l'auto insieme e capire se fa al caso tuo prima di chiudere.",
+      "Quando un’auto ti convince, ci sentiamo e la vediamo insieme. Niente sorprese dell’ultimo minuto.",
   },
 ] as const;
 
 export const ABOUT = {
   name: "Alberto Regantini",
   description:
-    "Vendo auto usate a Treviglio. Questo sito è la vetrina delle auto disponibili e il modo più veloce per contattarmi: WhatsApp o telefono, senza moduli complicati.",
+    "Vendo auto usate a Treviglio. Questo sito è la mia vetrina: le macchine che ho in questo momento, con foto, dati e un contatto diretto. Se qualcosa ti interessa, partiamo da WhatsApp.",
   quote:
-    "Se un'auto ti interessa, scrivimi: ti dico subito se è ancora disponibile e come possiamo vederla.",
+    "Preferisco una chat chiara a dieci chiamate a vuoto. Se l’auto c’è, te lo dico subito.",
 } as const;
 
 export const FINAL_CTA = {
-  headline: "Hai visto un'auto che ti interessa?",
+  headline: "Hai visto un’auto che ti interessa?",
   subheadline:
-    "Scrivimi su WhatsApp con il modello: ti rispondo sulla disponibilità e organizziamo il passo successivo.",
+    "Scrivimi il modello su WhatsApp: ti rispondo sulla disponibilità e organizziamo il passo successivo.",
 } as const;

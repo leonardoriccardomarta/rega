@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
+  ArrowDown,
+  ArrowUp,
   Eye,
   EyeOff,
   Loader2,
@@ -12,7 +14,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import type { CarListing } from "@/lib/cars";
+import { coverPhoto, normalizePhotos, type CarListing } from "@/lib/cars";
 
 type Draft = {
   id?: string;
@@ -36,10 +38,12 @@ type Draft = {
   condition: string;
   registration: string;
   badge: string;
-  photoUrl: string;
+  photos: string[];
   published: boolean;
   sortOrder: string;
 };
+
+const MAX_PHOTOS = 8;
 
 const emptyDraft = (): Draft => ({
   title: "",
@@ -62,7 +66,7 @@ const emptyDraft = (): Draft => ({
   condition: "Usato",
   registration: "",
   badge: "Disponibile",
-  photoUrl: "",
+  photos: [],
   published: true,
   sortOrder: "1",
 });
@@ -90,7 +94,7 @@ function toDraft(car: CarListing): Draft {
     condition: car.condition ?? "Usato",
     registration: car.registration ?? "",
     badge: car.badge ?? "",
-    photoUrl: car.photoUrl ?? "",
+    photos: normalizePhotos(car.photos, car.photoUrl),
     published: car.published,
     sortOrder: String(car.sortOrder),
   };
@@ -163,6 +167,9 @@ export function AdminApp() {
     setUploading(true);
     setError(null);
     try {
+      if (draft.photos.length >= MAX_PHOTOS) {
+        throw new Error(`Massimo ${MAX_PHOTOS} foto per auto`);
+      }
       const form = new FormData();
       form.append("file", file);
       const res = await fetch("/api/upload", {
@@ -174,13 +181,37 @@ export function AdminApp() {
       if (!res.ok || !data.photoUrl) {
         throw new Error(data.error ?? "Upload fallito");
       }
-      setDraft((prev) => ({ ...prev, photoUrl: data.photoUrl! }));
+      setDraft((prev) => ({
+        ...prev,
+        photos: [...prev.photos, data.photoUrl!].slice(0, MAX_PHOTOS),
+      }));
       setPhotoDirty(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload fallito");
     } finally {
       setUploading(false);
     }
+  }
+
+  function movePhoto(index: number, direction: -1 | 1) {
+    setDraft((prev) => {
+      const next = [...prev.photos];
+      const target = index + direction;
+      if (target < 0 || target >= next.length) return prev;
+      const tmp = next[index]!;
+      next[index] = next[target]!;
+      next[target] = tmp;
+      return { ...prev, photos: next };
+    });
+    setPhotoDirty(true);
+  }
+
+  function removePhoto(index: number) {
+    setDraft((prev) => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index),
+    }));
+    setPhotoDirty(true);
   }
 
   function startEdit(car: CarListing) {
@@ -224,9 +255,9 @@ export function AdminApp() {
         sortOrder: Number(draft.sortOrder) || 1,
       };
 
-      // Avoid re-sending huge data-URL photos unless the user uploaded a new one.
       if (!draft.id || photoDirty) {
-        payload.photoUrl = draft.photoUrl || undefined;
+        payload.photos = draft.photos;
+        payload.photoUrl = draft.photos[0];
       }
 
       const res = await fetch(draft.id ? `/api/cars/${draft.id}` : "/api/cars", {
@@ -291,7 +322,7 @@ export function AdminApp() {
           onSubmit={handleLogin}
           className="w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-8"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
             Area riservata
           </p>
           <h1 className="mt-3 text-2xl font-semibold text-white">
@@ -307,7 +338,7 @@ export function AdminApp() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-amber-400"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
               autoFocus
             />
           </label>
@@ -316,7 +347,7 @@ export function AdminApp() {
           )}
           <button
             type="submit"
-            className="mt-6 w-full rounded-full bg-amber-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+            className="mt-6 w-full rounded-full bg-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-400"
           >
             Entra
           </button>
@@ -330,7 +361,7 @@ export function AdminApp() {
       <header className="border-b border-white/10">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
               Admin
             </p>
             <h1 className="text-lg font-semibold">Showcase auto</h1>
@@ -457,7 +488,7 @@ export function AdminApp() {
               </Field>
             </div>
 
-            <p className="pt-2 text-xs font-semibold uppercase tracking-widest text-amber-400/90">
+            <p className="pt-2 text-xs font-semibold uppercase tracking-widest text-sky-400/90">
               Informazioni di base
             </p>
 
@@ -605,33 +636,88 @@ export function AdminApp() {
             </Field>
 
             <div>
-              <p className="mb-2 text-sm text-white/65">Foto principale</p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm hover:bg-white/5">
+              <p className="mb-2 text-sm text-white/65">
+                Foto ({draft.photos.length}/{MAX_PHOTOS}) — la prima è la
+                copertina
+              </p>
+              <div className="flex flex-col gap-3">
+                <label className="inline-flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm hover:bg-white/5">
                   {uploading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Upload className="h-4 w-4" />
                   )}
-                  Carica foto
+                  Aggiungi foto
                   <input
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     className="hidden"
+                    multiple
                     onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) void handleUpload(file);
+                      const files = Array.from(e.target.files ?? []);
+                      void (async () => {
+                        for (const file of files) {
+                          await handleUpload(file);
+                        }
+                        e.target.value = "";
+                      })();
                     }}
                   />
                 </label>
-                {draft.photoUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={draft.photoUrl}
-                    alt="Anteprima"
-                    className="h-16 w-24 rounded-lg object-cover"
-                  />
+                {draft.photos.length > 0 && (
+                  <ul className="space-y-2">
+                    {draft.photos.map((photo, index) => (
+                      <li
+                        key={`${index}-${photo.slice(0, 24)}`}
+                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-2"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photo}
+                          alt={`Foto ${index + 1}`}
+                          className="h-14 w-20 rounded-lg object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs text-white/60">
+                            {index === 0 ? "Copertina" : `Foto ${index + 1}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => movePhoto(index, -1)}
+                            disabled={index === 0}
+                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 disabled:opacity-30"
+                            aria-label="Sposta su"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => movePhoto(index, 1)}
+                            disabled={index === draft.photos.length - 1}
+                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 disabled:opacity-30"
+                            aria-label="Sposta giù"
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(index)}
+                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-rose-300"
+                            aria-label="Rimuovi foto"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 )}
+                <p className="text-xs text-white/40">
+                  Max 2.5 MB per foto. Su mobile nella landing si scorrono con
+                  swipe.
+                </p>
               </div>
             </div>
 
@@ -653,7 +739,7 @@ export function AdminApp() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-amber-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-400 disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -683,20 +769,23 @@ export function AdminApp() {
                 key={car.id}
                 className={`rounded-2xl border bg-slate-950/50 p-3 ${
                   draft.id === car.id
-                    ? "border-amber-400/50"
+                    ? "border-sky-400/50"
                     : "border-white/10"
                 }`}
               >
                 <div className="flex gap-3">
                   <div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-800">
-                    {car.photoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={car.photoUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
+                    {(() => {
+                      const cover = coverPhoto(car);
+                      return cover ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={cover}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null;
+                    })()}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{car.title}</p>
@@ -708,7 +797,7 @@ export function AdminApp() {
                       <button
                         type="button"
                         onClick={() => startEdit(car)}
-                        className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 px-3 py-1 text-xs font-medium text-amber-200 hover:bg-amber-400/10"
+                        className="inline-flex items-center gap-1 rounded-full border border-sky-400/40 px-3 py-1 text-xs font-medium text-sky-200 hover:bg-sky-400/10"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         Modifica
@@ -716,7 +805,7 @@ export function AdminApp() {
                       <button
                         type="button"
                         onClick={() => void togglePublished(car)}
-                        className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-amber-300"
+                        className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-sky-300"
                         aria-label={car.published ? "Nascondi" : "Pubblica"}
                       >
                         {car.published ? (
@@ -761,4 +850,4 @@ function Field({
 }
 
 const inputClass =
-  "w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-amber-400";
+  "w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-sky-400";

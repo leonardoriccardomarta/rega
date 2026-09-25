@@ -8,7 +8,7 @@ export function About() {
       <SectionContainer>
         <FadeIn>
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-amber-600">
+            <p className="text-sm font-semibold uppercase tracking-widest text-sky-700">
               Chi sono
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">

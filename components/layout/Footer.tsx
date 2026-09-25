@@ -10,7 +10,7 @@ export function Footer() {
           href={SITE.subitoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium text-amber-700 hover:underline"
+          className="text-sm font-medium text-sky-700 hover:underline"
         >
           Shop Subito Impresa+
         </a>

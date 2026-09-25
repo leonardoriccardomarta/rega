@@ -5,7 +5,6 @@ function getDatabaseUrl(): string {
   if (!raw) {
     throw new Error("DATABASE_URL non configurata");
   }
-  // channel_binding can break some serverless drivers
   return raw
     .replace(/([?&])channel_binding=require&?/, "$1")
     .replace(/[?&]$/, "");
@@ -49,11 +48,20 @@ export async function ensureSchema() {
           registration TEXT,
           badge TEXT,
           photo_url TEXT,
+          photos JSONB NOT NULL DEFAULT '[]'::jsonb,
           published BOOLEAN NOT NULL DEFAULT TRUE,
           sort_order INTEGER NOT NULL DEFAULT 1,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `;
+      await db`ALTER TABLE cars ADD COLUMN IF NOT EXISTS photos JSONB NOT NULL DEFAULT '[]'::jsonb`;
+      await db`
+        UPDATE cars
+        SET photos = jsonb_build_array(photo_url)
+        WHERE (photos IS NULL OR photos = '[]'::jsonb)
+          AND photo_url IS NOT NULL
+          AND photo_url <> ''
       `;
     })();
   }

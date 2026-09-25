@@ -29,7 +29,7 @@ export function WhyMe() {
             return (
               <FadeIn key={point.id} delay={index * 70}>
                 <div className="h-full rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-700">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="text-lg font-semibold text-slate-950">
