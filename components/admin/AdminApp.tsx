@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
   Eye,
   EyeOff,
   Loader2,
   LogOut,
+  Pencil,
   Plus,
   Save,
   Trash2,
@@ -102,7 +103,9 @@ export function AdminApp() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [cars, setCars] = useState<CarListing[]>([]);
   const [draft, setDraft] = useState<Draft>(emptyDraft());
+  const [photoDirty, setPhotoDirty] = useState(false);
   const [saving, setSaving] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -162,17 +165,32 @@ export function AdminApp() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
       const data = (await res.json()) as { photoUrl?: string; error?: string };
       if (!res.ok || !data.photoUrl) {
         throw new Error(data.error ?? "Upload fallito");
       }
       setDraft((prev) => ({ ...prev, photoUrl: data.photoUrl! }));
+      setPhotoDirty(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload fallito");
     } finally {
       setUploading(false);
     }
+  }
+
+  function startEdit(car: CarListing) {
+    setDraft(toDraft(car));
+    setPhotoDirty(false);
+    setMessage(null);
+    setError(null);
+    window.requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   async function handleSave(e: FormEvent) {
@@ -181,7 +199,7 @@ export function AdminApp() {
     setError(null);
     setMessage(null);
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         title: draft.title,
         description: draft.description,
         subitoUrl: draft.subitoUrl,
@@ -202,21 +220,31 @@ export function AdminApp() {
         condition: draft.condition,
         registration: draft.registration,
         badge: draft.badge,
-        photoUrl: draft.photoUrl || undefined,
         published: draft.published,
         sortOrder: Number(draft.sortOrder) || 1,
       };
 
+      // Avoid re-sending huge data-URL photos unless the user uploaded a new one.
+      if (!draft.id || photoDirty) {
+        payload.photoUrl = draft.photoUrl || undefined;
+      }
+
       const res = await fetch(draft.id ? `/api/cars/${draft.id}` : "/api/cars", {
         method: draft.id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? "Salvataggio fallito");
 
-      setMessage("Salvato: la landing si aggiorna subito.");
+      setMessage(
+        draft.id
+          ? "Modifiche salvate: la landing si aggiorna subito."
+          : "Auto aggiunta allo showcase.",
+      );
       setDraft(emptyDraft());
+      setPhotoDirty(false);
       await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Salvataggio fallito");
@@ -227,8 +255,14 @@ export function AdminApp() {
 
   async function handleDelete(id: string) {
     if (!confirm("Eliminare questa auto dallo showcase?")) return;
-    await fetch(`/api/cars/${id}`, { method: "DELETE" });
-    if (draft.id === id) setDraft(emptyDraft());
+    await fetch(`/api/cars/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (draft.id === id) {
+      setDraft(emptyDraft());
+      setPhotoDirty(false);
+    }
     await refresh();
   }
 
@@ -236,6 +270,7 @@ export function AdminApp() {
     await fetch(`/api/cars/${car.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ published: !car.published }),
     });
     await refresh();
@@ -330,7 +365,10 @@ export function AdminApp() {
             {draft.id && (
               <button
                 type="button"
-                onClick={() => setDraft(emptyDraft())}
+                onClick={() => {
+                  setDraft(emptyDraft());
+                  setPhotoDirty(false);
+                }}
                 className="text-sm text-white/50 hover:text-white"
               >
                 Annulla
@@ -338,7 +376,11 @@ export function AdminApp() {
             )}
           </div>
 
-          <form onSubmit={handleSave} className="mt-6 space-y-4">
+          <form
+            ref={formRef}
+            onSubmit={handleSave}
+            className="mt-6 space-y-4"
+          >
             <Field label="Titolo annuncio *">
               <input
                 required
@@ -363,16 +405,20 @@ export function AdminApp() {
               />
             </Field>
 
-            <Field label="Link annuncio Subito">
+            <Field label="Link annuncio Subito (pagina della singola auto)">
               <input
                 type="url"
                 value={draft.subitoUrl}
                 onChange={(e) =>
                   setDraft((p) => ({ ...p, subitoUrl: e.target.value }))
                 }
-                placeholder="https://www.subito.it/auto/..."
+                placeholder="https://www.subito.it/auto/...htm"
                 className={inputClass}
               />
+              <span className="mt-1 block text-xs text-white/40">
+                Non usare il link dello shop: apri l&apos;annuncio e copia
+                l&apos;URL della singola auto.
+              </span>
             </Field>
 
             <div className="grid gap-4 sm:grid-cols-3">
@@ -624,7 +670,9 @@ export function AdminApp() {
         <aside className="rounded-3xl border border-white/10 bg-slate-900/70 p-6">
           <h3 className="font-semibold">Auto nello showcase</h3>
           <p className="mt-1 text-sm text-white/45">
-            Clicca per modificare. Occhio = pubblica / nascondi.
+            Premi <strong className="font-medium text-white/70">Modifica</strong>{" "}
+            per cambiare titolo, descrizione, link Subito e dati. Occhio =
+            pubblica/nascondi.
           </p>
           <ul className="mt-4 space-y-3">
             {cars.length === 0 && (
@@ -633,7 +681,11 @@ export function AdminApp() {
             {cars.map((car) => (
               <li
                 key={car.id}
-                className="rounded-2xl border border-white/10 bg-slate-950/50 p-3"
+                className={`rounded-2xl border bg-slate-950/50 p-3 ${
+                  draft.id === car.id
+                    ? "border-amber-400/50"
+                    : "border-white/10"
+                }`}
               >
                 <div className="flex gap-3">
                   <div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-800">
@@ -647,18 +699,20 @@ export function AdminApp() {
                     ) : null}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <button
-                      type="button"
-                      onClick={() => setDraft(toDraft(car))}
-                      className="block w-full text-left"
-                    >
-                      <p className="truncate font-medium">{car.title}</p>
-                      <p className="text-xs text-white/45">
-                        {car.price.toLocaleString("it-IT")} € ·{" "}
-                        {car.published ? "online" : "nascosta"}
-                      </p>
-                    </button>
-                    <div className="mt-2 flex gap-2">
+                    <p className="truncate font-medium">{car.title}</p>
+                    <p className="text-xs text-white/45">
+                      {car.price.toLocaleString("it-IT")} € ·{" "}
+                      {car.published ? "online" : "nascosta"}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(car)}
+                        className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 px-3 py-1 text-xs font-medium text-amber-200 hover:bg-amber-400/10"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Modifica
+                      </button>
                       <button
                         type="button"
                         onClick={() => void togglePublished(car)}

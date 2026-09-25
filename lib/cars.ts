@@ -61,7 +61,8 @@ export const DEFAULT_CARS: CarListing[] = [
     title: "Fiat Grande Punto 1.3 MJT 75 5p Van Actual",
     description:
       "Fiat Grande Punto diesel in allestimento Van. Ideale per chi cerca un'auto pratica e economica da gestire. Contattami per disponibilità e prova.",
-    subitoUrl: "https://impresapiu.subito.it/shops/60152-regantini",
+    subitoUrl:
+      "https://www.subito.it/auto/fiat-grande-punto-1-3mjt-75-5p-van-actual-4pt-bergamo-662116617.htm",
     price: 2500,
     year: 2010,
     kmLabel: "190–200.000 km",
@@ -118,7 +119,8 @@ export const DEFAULT_CARS: CarListing[] = [
     title: "Subaru Outback 2.5i 16V",
     description:
       "Subaru Outback benzina, cambio manuale. Station versatile per uso quotidiano e viaggi. Contattami per dettagli e stato dell'auto.",
-    subitoUrl: "https://impresapiu.subito.it/shops/60152-regantini",
+    subitoUrl:
+      "https://www.subito.it/auto/subaru-outback-2-5i-16v-fs-bergamo-662095583.htm",
     price: 2100,
     year: 2008,
     kmLabel: "300–350.000 km",
