@@ -24,6 +24,7 @@ export type CarListing = {
   photoUrl?: string;
   photos: string[];
   published: boolean;
+  featured: boolean;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -53,6 +54,7 @@ export type CarInput = {
   photoUrl?: string;
   photos?: string[];
   published?: boolean;
+  featured?: boolean;
   sortOrder?: number;
 };
 
@@ -97,6 +99,7 @@ export const DEFAULT_CARS: CarListing[] = [
     badge: "Disponibile",
     photos: [],
     published: true,
+    featured: true,
     sortOrder: 1,
     createdAt: now(),
     updatedAt: now(),
@@ -127,6 +130,7 @@ export const DEFAULT_CARS: CarListing[] = [
     badge: "Disponibile",
     photos: [],
     published: true,
+    featured: false,
     sortOrder: 2,
     createdAt: now(),
     updatedAt: now(),
@@ -155,6 +159,7 @@ export const DEFAULT_CARS: CarListing[] = [
     badge: "Disponibile",
     photos: [],
     published: true,
+    featured: false,
     sortOrder: 3,
     createdAt: now(),
     updatedAt: now(),

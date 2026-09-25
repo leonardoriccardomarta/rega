@@ -13,7 +13,7 @@ const icons = {
 
 export function WhyMe() {
   return (
-    <section id={SECTION_IDS.perche} className="py-20 md:py-28">
+    <section id={SECTION_IDS.perche} className="py-14 md:py-28">
       <SectionContainer>
         <FadeIn>
           <SectionHeading

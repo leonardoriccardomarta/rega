@@ -24,7 +24,7 @@ export default async function Home() {
     cars = [];
   }
 
-  const featured = cars[0];
+  const featured = cars.find((car) => car.featured) ?? cars[0];
 
   return (
     <>

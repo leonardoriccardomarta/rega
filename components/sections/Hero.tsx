@@ -19,23 +19,23 @@ export function Hero({
   const contact = getContactLinks();
 
   return (
-    <section className="relative overflow-hidden bg-hero pt-28 pb-16 md:pt-36 md:pb-24">
+    <section className="relative overflow-hidden bg-hero pt-24 pb-12 md:pt-36 md:pb-24">
       <SectionContainer>
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
+        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-8">
           <FadeIn className="lg:col-span-7">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary sm:text-sm">
               {SITE.name}
             </p>
-            <p className="mt-2 text-sm text-black/50">{SITE.areaLine}</p>
+            <p className="mt-1.5 text-sm text-black/50">{SITE.areaLine}</p>
 
-            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-midnight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 text-balance text-[1.85rem] font-semibold leading-[1.12] tracking-tight text-midnight sm:mt-5 sm:text-5xl lg:text-6xl">
               {HERO.headline}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-black/65 md:text-xl">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-black/65 sm:mt-6 sm:text-lg md:text-xl">
               {HERO.subheadline}
             </p>
 
-            <div className="mt-6 rounded-2xl border border-primary/15 bg-white/80 px-4 py-3 text-sm font-medium text-black/70 shadow-soft backdrop-blur-sm">
+            <div className="mt-5 rounded-2xl border border-primary/15 bg-white/80 px-3.5 py-2.5 text-[13px] font-medium text-black/70 shadow-soft backdrop-blur-sm sm:mt-6 sm:px-4 sm:py-3 sm:text-sm">
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 {TRUST_ITEMS.map((item, index) => (
                   <span key={item} className="inline-flex items-center">
@@ -50,7 +50,7 @@ export function Hero({
               </p>
             </div>
 
-            <div className="mt-8 hidden flex-col gap-3 sm:flex-row sm:flex-wrap md:flex">
+            <div className="mt-7 hidden flex-col gap-3 sm:flex-row sm:flex-wrap md:flex">
               {contact ? (
                 <>
                   <Button
@@ -86,44 +86,46 @@ export function Hero({
               )}
             </div>
 
-            <div className="mt-6 md:hidden">
+            <div className="mt-5 md:hidden">
               <Button
                 href={`#${SECTION_IDS.inventario}`}
                 variant="primary"
-                className="w-full"
+                className="w-full py-3.5"
               >
                 Scorri le auto in vetrina
               </Button>
             </div>
           </FadeIn>
 
-          <FadeIn delay={150} className="lg:col-span-5">
+          <FadeIn delay={120} className="lg:col-span-5">
             <div className="relative mx-auto max-w-lg lg:mr-0 lg:ml-auto">
-              <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-primary/10 to-sky-200/40 blur-2xl" />
-              <div className="relative overflow-hidden rounded-[2rem] shadow-feature">
+              <div className="absolute -inset-4 rounded-[1.75rem] bg-gradient-to-br from-primary/10 to-sky-200/40 blur-2xl md:-inset-6 md:rounded-[2rem]" />
+              <div className="relative overflow-hidden rounded-[1.5rem] shadow-feature md:rounded-[2rem]">
                 {featuredImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={featuredImage}
                     alt={featuredTitle || "Auto in vetrina"}
-                    className="h-[320px] w-full object-cover md:h-[400px]"
+                    className="h-[240px] w-full object-cover sm:h-[300px] md:h-[400px]"
+                    fetchPriority="high"
+                    decoding="async"
                   />
                 ) : (
-                  <div className="flex h-[320px] w-full flex-col justify-end bg-[linear-gradient(160deg,#0b1f33,#1e3a5f)] p-7 md:h-[400px]">
+                  <div className="flex h-[240px] w-full flex-col justify-end bg-[linear-gradient(160deg,#0b1f33,#1e3a5f)] p-6 sm:h-[300px] md:h-[400px] md:p-7">
                     <p className="text-sm font-semibold text-sky-200">
                       Come funziona
                     </p>
-                    <p className="mt-2 text-2xl font-semibold text-white">
+                    <p className="mt-2 text-xl font-semibold text-white md:text-2xl">
                       Guardi la vetrina, mi scrivi, chiudiamo senza giri.
                     </p>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-midnight/60 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                  <p className="text-sm font-medium text-white/80">
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight/65 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-6">
+                  <p className="text-xs font-medium text-white/80 sm:text-sm">
                     {featuredTitle ? "In evidenza ora" : "Come funziona"}
                   </p>
-                  <p className="mt-1 text-lg font-semibold">
+                  <p className="mt-0.5 line-clamp-2 text-base font-semibold sm:text-lg">
                     {featuredTitle
                       ? `${featuredTitle}${featuredPrice ? ` · ${featuredPrice}` : ""}`
                       : "Guardi, mi scrivi, chiudiamo"}

@@ -39,7 +39,7 @@ export default function RootLayout({
     <html lang="it" className={`${jakarta.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">
         <Header />
-        <main className="pb-24 md:pb-0">{children}</main>
+        <main className="pb-0 md:pb-0">{children}</main>
         <Footer />
         <StickyMobileCta />
       </body>

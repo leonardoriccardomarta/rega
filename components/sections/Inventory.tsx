@@ -38,13 +38,18 @@ export function Inventory({
   }, []);
 
   useEffect(() => {
-    void load();
-    const id = window.setInterval(() => void load(), 20000);
+    if (initialCars.length === 0) {
+      void load();
+    }
+    const tick = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    const id = window.setInterval(tick, 60000);
     return () => window.clearInterval(id);
-  }, [load]);
+  }, [load, initialCars.length]);
 
   return (
-    <section id={SECTION_IDS.inventario} className="bg-slate-50/80 py-16 md:py-24">
+    <section id={SECTION_IDS.inventario} className="bg-slate-50/80 py-12 md:py-24">
       <SectionContainer>
         <FadeIn>
           <SectionHeading
@@ -65,7 +70,7 @@ export function Inventory({
           </p>
         )}
 
-        <div className="space-y-7 md:space-y-9">
+        <div className="space-y-6 md:space-y-9">
           {cars.map((car, index) => {
             const wa = whatsappHrefForCar(car.title);
             const specs = carSpecs(car).slice(0, 9);
@@ -77,19 +82,20 @@ export function Inventory({
                 : [];
 
             return (
-              <FadeIn key={`${car.id}-${car.updatedAt}`} delay={index * 50}>
-                <article className="overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-white shadow-card">
+              <FadeIn key={`${car.id}-${car.updatedAt}`} delay={index * 40}>
+                <article className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card md:rounded-[1.75rem]">
                   <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
                     <PhotoCarousel
                       photos={photos}
                       alt={car.title}
                       priceLabel={formatPrice(car.price)}
                       badge={car.badge}
+                      priority={index === 0}
                     />
 
-                    <div className="flex flex-col p-5 sm:p-7 md:p-8">
+                    <div className="flex flex-col p-4 sm:p-7 md:p-8">
                       <p className="text-sm text-muted">{car.location}</p>
-                      <h3 className="mt-1 text-2xl font-semibold tracking-tight text-midnight md:text-[1.75rem]">
+                      <h3 className="mt-1 text-xl font-semibold tracking-tight text-midnight sm:text-2xl md:text-[1.75rem]">
                         {car.title}
                       </h3>
                       {car.description && (
@@ -121,7 +127,7 @@ export function Inventory({
                         </div>
                       )}
 
-                      <div className="mt-auto flex flex-col gap-2.5 pt-6 sm:flex-row">
+                      <div className="mt-auto flex flex-col gap-2.5 pt-5 sm:flex-row sm:pt-6">
                         {wa && (
                           <a
                             href={wa}

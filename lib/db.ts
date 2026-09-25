@@ -56,12 +56,21 @@ export async function ensureSchema() {
         )
       `;
       await db`ALTER TABLE cars ADD COLUMN IF NOT EXISTS photos JSONB NOT NULL DEFAULT '[]'::jsonb`;
+      await db`ALTER TABLE cars ADD COLUMN IF NOT EXISTS featured BOOLEAN NOT NULL DEFAULT FALSE`;
       await db`
         UPDATE cars
         SET photos = jsonb_build_array(photo_url)
         WHERE (photos IS NULL OR photos = '[]'::jsonb)
           AND photo_url IS NOT NULL
           AND photo_url <> ''
+      `;
+      await db`
+        UPDATE cars
+        SET featured = TRUE
+        WHERE id = (
+          SELECT id FROM cars WHERE published = TRUE ORDER BY sort_order ASC LIMIT 1
+        )
+        AND NOT EXISTS (SELECT 1 FROM cars WHERE featured = TRUE)
       `;
     })();
   }

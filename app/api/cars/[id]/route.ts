@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
 import type { CarInput } from "@/lib/cars";
-import { deleteCar, getCar, updateCar } from "@/lib/storage";
+import { deleteCar, getCar, setFeaturedCar, updateCar } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +23,18 @@ export async function PUT(request: Request, { params }: Params) {
     return NextResponse.json({ error: "Non autenticato" }, { status: 401 });
   }
   const { id } = await params;
-  const body = (await request.json()) as Partial<CarInput>;
+  const body = (await request.json()) as Partial<CarInput> & {
+    setFeatured?: boolean;
+  };
+
+  if (body.setFeatured === true) {
+    const car = await setFeaturedCar(id);
+    if (!car) {
+      return NextResponse.json({ error: "Non trovato" }, { status: 404 });
+    }
+    return NextResponse.json({ car });
+  }
+
   const car = await updateCar(id, body);
   if (!car) {
     return NextResponse.json({ error: "Non trovato" }, { status: 404 });

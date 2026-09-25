@@ -31,6 +31,7 @@ type CarRow = {
   photo_url: string | null;
   photos: unknown;
   published: boolean;
+  featured: boolean;
   sort_order: number;
   created_at: string | Date;
   updated_at: string | Date;
@@ -95,6 +96,7 @@ function mapRow(row: CarRow): CarListing {
     photoUrl: photos[0],
     photos,
     published: Boolean(row.published),
+    featured: Boolean(row.featured),
     sortOrder: Number(row.sort_order) || 1,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
@@ -126,7 +128,7 @@ async function seedIfEmpty() {
         id, title, description, subito_url, price, year, km_label, fuel,
         transmission, location, brand, model, version, body_type, doors,
         seats, color, emission_class, condition, registration, badge,
-        photo_url, photos, published, sort_order, created_at, updated_at
+        photo_url, photos, published, featured, sort_order, created_at, updated_at
       ) VALUES (
         ${car.id},
         ${car.title},
@@ -152,6 +154,7 @@ async function seedIfEmpty() {
         ${photos[0] ?? null},
         ${JSON.stringify(photos)}::jsonb,
         ${car.published},
+        ${car.featured},
         ${car.sortOrder},
         ${car.createdAt},
         ${car.updatedAt}
@@ -175,11 +178,11 @@ export async function listCars(options?: {
     ? ((await db`
         SELECT * FROM cars
         WHERE published = TRUE
-        ORDER BY sort_order ASC, title ASC
+        ORDER BY featured DESC, sort_order ASC, title ASC
       `) as CarRow[])
     : ((await db`
         SELECT * FROM cars
-        ORDER BY sort_order ASC, title ASC
+        ORDER BY featured DESC, sort_order ASC, title ASC
       `) as CarRow[]);
   return rows.map(mapRow);
 }
@@ -198,15 +201,20 @@ export async function createCar(input: CarInput): Promise<CarListing> {
   const now = new Date().toISOString();
   const id = makeId(input.title);
   const published = input.published ?? true;
+  const featured = input.featured ?? false;
   const sortOrder = input.sortOrder ?? existing.length + 1;
   const photos = normalizePhotos(input.photos, input.photoUrl);
+
+  if (featured) {
+    await db`UPDATE cars SET featured = FALSE WHERE featured = TRUE`;
+  }
 
   const rows = (await db`
     INSERT INTO cars (
       id, title, description, subito_url, price, year, km_label, fuel,
       transmission, location, brand, model, version, body_type, doors,
       seats, color, emission_class, condition, registration, badge,
-      photo_url, photos, published, sort_order, created_at, updated_at
+      photo_url, photos, published, featured, sort_order, created_at, updated_at
     ) VALUES (
       ${id},
       ${input.title.trim()},
@@ -232,6 +240,7 @@ export async function createCar(input: CarInput): Promise<CarListing> {
       ${photos[0] ?? null},
       ${JSON.stringify(photos)}::jsonb,
       ${published},
+      ${featured},
       ${sortOrder},
       ${now},
       ${now}
@@ -314,11 +323,17 @@ export async function updateCar(
       input.badge !== undefined ? optional(input.badge) : (current.badge ?? null),
     published:
       input.published !== undefined ? Boolean(input.published) : current.published,
+    featured:
+      input.featured !== undefined ? Boolean(input.featured) : current.featured,
     sortOrder:
       input.sortOrder !== undefined
         ? Number(input.sortOrder) || current.sortOrder
         : current.sortOrder,
   };
+
+  if (next.featured && !current.featured) {
+    await db`UPDATE cars SET featured = FALSE WHERE featured = TRUE AND id <> ${id}`;
+  }
 
   const rows = (await db`
     UPDATE cars SET
@@ -345,12 +360,28 @@ export async function updateCar(
       photo_url = ${photos[0] ?? null},
       photos = ${JSON.stringify(photos)}::jsonb,
       published = ${next.published},
+      featured = ${next.featured},
       sort_order = ${next.sortOrder},
       updated_at = ${now}
     WHERE id = ${id}
     RETURNING *
   `) as CarRow[];
 
+  return rows[0] ? mapRow(rows[0]) : null;
+}
+
+export async function setFeaturedCar(id: string): Promise<CarListing | null> {
+  await ready();
+  const current = await getCar(id);
+  if (!current) return null;
+  const db = sql();
+  await db`UPDATE cars SET featured = FALSE WHERE featured = TRUE`;
+  const rows = (await db`
+    UPDATE cars
+    SET featured = TRUE, updated_at = ${new Date().toISOString()}
+    WHERE id = ${id}
+    RETURNING *
+  `) as CarRow[];
   return rows[0] ? mapRow(rows[0]) : null;
 }
 

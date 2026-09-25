@@ -4,7 +4,7 @@ import { isAdminAuthenticated } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const MAX_BYTES = 2.5 * 1024 * 1024;
+const MAX_BYTES = 1.8 * 1024 * 1024;
 
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   if (file.size > MAX_BYTES) {
     return NextResponse.json(
-      { error: "Foto troppo grande (max 2.5 MB). Comprimila un po'." },
+      { error: "Foto troppo grande (max 1.8 MB). Comprimila un po'." },
       { status: 400 },
     );
   }

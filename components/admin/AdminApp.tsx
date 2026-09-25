@@ -11,10 +11,12 @@ import {
   Pencil,
   Plus,
   Save,
+  Star,
   Trash2,
   Upload,
 } from "lucide-react";
 import { coverPhoto, normalizePhotos, type CarListing } from "@/lib/cars";
+import { compressImageFile } from "@/lib/compress-image";
 
 type Draft = {
   id?: string;
@@ -170,8 +172,9 @@ export function AdminApp() {
       if (draft.photos.length >= MAX_PHOTOS) {
         throw new Error(`Massimo ${MAX_PHOTOS} foto per auto`);
       }
+      const compressed = await compressImageFile(file);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", compressed);
       const res = await fetch("/api/upload", {
         method: "POST",
         body: form,
@@ -304,6 +307,17 @@ export function AdminApp() {
       credentials: "include",
       body: JSON.stringify({ published: !car.published }),
     });
+    await refresh();
+  }
+
+  async function setFeatured(car: CarListing) {
+    await fetch(`/api/cars/${car.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ setFeatured: true }),
+    });
+    setMessage(`“${car.title}” è ora in evidenza sull’hero.`);
     await refresh();
   }
 
@@ -757,7 +771,7 @@ export function AdminApp() {
           <h3 className="font-semibold">Auto nello showcase</h3>
           <p className="mt-1 text-sm text-white/45">
             Premi <strong className="font-medium text-white/70">Modifica</strong>{" "}
-            per cambiare titolo, descrizione, link Subito e dati. Occhio =
+            per i dati. Stella = in evidenza sull’hero. Occhio =
             pubblica/nascondi.
           </p>
           <ul className="mt-4 space-y-3">
@@ -770,7 +784,9 @@ export function AdminApp() {
                 className={`rounded-2xl border bg-slate-950/50 p-3 ${
                   draft.id === car.id
                     ? "border-sky-400/50"
-                    : "border-white/10"
+                    : car.featured
+                      ? "border-amber-400/40"
+                      : "border-white/10"
                 }`}
               >
                 <div className="flex gap-3">
@@ -788,10 +804,14 @@ export function AdminApp() {
                     })()}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{car.title}</p>
+                    <p className="truncate font-medium">
+                      {car.featured ? "★ " : ""}
+                      {car.title}
+                    </p>
                     <p className="text-xs text-white/45">
                       {car.price.toLocaleString("it-IT")} € ·{" "}
                       {car.published ? "online" : "nascosta"}
+                      {car.featured ? " · in evidenza" : ""}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <button
@@ -801,6 +821,21 @@ export function AdminApp() {
                       >
                         <Pencil className="h-3.5 w-3.5" />
                         Modifica
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void setFeatured(car)}
+                        className={`rounded-lg p-1.5 hover:bg-white/5 ${
+                          car.featured
+                            ? "text-amber-300"
+                            : "text-white/50 hover:text-amber-200"
+                        }`}
+                        aria-label="Metti in evidenza"
+                        title="In evidenza sull’hero"
+                      >
+                        <Star
+                          className={`h-4 w-4 ${car.featured ? "fill-current" : ""}`}
+                        />
                       </button>
                       <button
                         type="button"

@@ -4,7 +4,7 @@ import { ABOUT, SECTION_IDS, SITE } from "@/lib/constants";
 
 export function About() {
   return (
-    <section id={SECTION_IDS.chiSono} className="bg-slate-50/60 py-20 md:py-28">
+    <section id={SECTION_IDS.chiSono} className="bg-slate-50/60 py-14 md:py-28">
       <SectionContainer>
         <FadeIn>
           <div className="mx-auto max-w-3xl text-center">

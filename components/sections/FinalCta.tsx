@@ -11,19 +11,20 @@ export function FinalCta() {
   return (
     <section
       id={SECTION_IDS.contatti}
-      className="bg-midnight py-20 text-white md:py-28"
+      className="bg-midnight pt-14 pb-8 text-white md:py-28"
     >
       <SectionContainer>
         <FadeIn>
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-3xl font-semibold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl md:text-5xl">
               {FINAL_CTA.headline}
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-white/65">
+            <p className="mt-4 text-base leading-relaxed text-white/65 md:mt-5 md:text-lg">
               {FINAL_CTA.subheadline}
             </p>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            {/* Sticky bar already covers WhatsApp/call on mobile */}
+            <div className="mt-7 hidden flex-col items-center justify-center gap-3 sm:flex-row md:mt-8 md:flex">
               {contact ? (
                 <>
                   <Button
@@ -54,11 +55,15 @@ export function FinalCta() {
               )}
             </div>
 
+            <p className="mt-5 text-sm text-white/55 md:hidden">
+              Usa WhatsApp o chiama dalla barra in basso.
+            </p>
+
             <a
               href={SITE.subitoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white"
+              className="mt-5 inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white md:mt-6"
             >
               Oppure apri lo shop Subito
               <ExternalLink className="h-4 w-4" />
