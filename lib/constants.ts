@@ -82,7 +82,7 @@ export const SELL = {
   subtitle:
     "Inserisci i dati: ricevi una fascia indicativa di ritiro basata sul catalogo modelli, poi Alberto ti conferma il valore reale.",
   disclaimer:
-    "La cifra è una fascia di ritiro indicativa (non un listino ufficiale). Il valore definitivo lo concordiamo dopo foto, documenti e stato reale del veicolo.",
+    "Fascia di ritiro indicativa, calibrata sullo stile di rivendita dello shop Subito (con margine tipico del rivenditore). Il valore definitivo lo concordiamo dopo foto, documenti e stato reale del veicolo.",
 } as const;
 
 export const FINAL_CTA = {

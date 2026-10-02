@@ -383,10 +383,13 @@ export function SellCar() {
                       da {formatEuro(result.low)} a {formatEuro(result.high)}
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
-                      Riferimento medio:{" "}
+                      Riferimento ritiro:{" "}
                       <span className="font-semibold text-slate-800">
                         {formatEuro(result.mid)}
                       </span>
+                      {" · "}
+                      vetrina tipica ~{formatEuro(result.askMid)} (−
+                      {result.marginPct}% margine)
                     </p>
 
                     <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
