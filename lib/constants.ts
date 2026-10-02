@@ -78,11 +78,11 @@ export const ABOUT = {
 
 export const SELL = {
   eyebrow: "Vendimi la tua auto",
-  title: "Stima gratuita in pochi minuti",
+  title: "Stima di ritiro in pochi minuti",
   subtitle:
-    "Inserisci i dati principali: ricevi una forbice di valore indicativa e puoi inviarmela su WhatsApp per una conferma reale.",
+    "Inserisci i dati: ricevi una fascia indicativa di ritiro basata sul catalogo modelli, poi Alberto ti conferma il valore reale.",
   disclaimer:
-    "La stima è indicativa e non vincolante. Il valore definitivo lo concordiamo dopo valutazione di foto, documenti e stato reale del veicolo.",
+    "La cifra è una fascia di ritiro indicativa (non un listino ufficiale). Il valore definitivo lo concordiamo dopo foto, documenti e stato reale del veicolo.",
 } as const;
 
 export const FINAL_CTA = {

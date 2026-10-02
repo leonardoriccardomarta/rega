@@ -20,6 +20,7 @@ import {
   TRANSMISSION_OPTIONS,
   estimateCarValue,
   formatEuro,
+  modelsForBrand,
   valuationWhatsAppMessage,
   type ValuationInput,
   type ValuationResult,
@@ -33,6 +34,18 @@ const fieldClass =
 
 const labelClass = "mb-1.5 block text-xs font-semibold text-slate-600";
 
+function confidenceBar(confidence: ValuationResult["confidence"]) {
+  if (confidence === "alta") return "w-[85%] bg-emerald-500";
+  if (confidence === "media") return "w-[60%] bg-primary";
+  return "w-[35%] bg-amber-500";
+}
+
+function confidenceLabel(confidence: ValuationResult["confidence"]) {
+  if (confidence === "alta") return "Affidabilità alta (modello in catalogo)";
+  if (confidence === "media") return "Affidabilità media";
+  return "Affidabilità indicativa";
+}
+
 export function SellCar() {
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -45,6 +58,11 @@ export function SellCar() {
     useState<ValuationInput["condition"]>("good");
   const [result, setResult] = useState<ValuationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const catalogModels = useMemo(
+    () => (brand ? modelsForBrand(brand) : []),
+    [brand],
+  );
 
   const input = useMemo((): ValuationInput | null => {
     const yearNum = Number(year);
@@ -61,11 +79,21 @@ export function SellCar() {
     };
   }, [brand, model, year, mileage, fuel, transmission, condition]);
 
+  function resetResult() {
+    setResult(null);
+    setError(null);
+  }
+
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     if (!input) {
       setError("Compila marca, modello, anno e chilometri.");
+      setResult(null);
+      return;
+    }
+    if (input.year > CURRENT_YEAR || input.year < CURRENT_YEAR - 30) {
+      setError("Anno non valido.");
       setResult(null);
       return;
     }
@@ -118,7 +146,11 @@ export function SellCar() {
                     id="brand"
                     className={fieldClass}
                     value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
+                    onChange={(e) => {
+                      setBrand(e.target.value);
+                      setModel("");
+                      resetResult();
+                    }}
                     required
                   >
                     <option value="">Seleziona marca</option>
@@ -136,12 +168,38 @@ export function SellCar() {
                   </label>
                   <input
                     id="model"
+                    list="model-catalog"
                     className={fieldClass}
-                    placeholder="Es. Golf 1.6 TDI"
+                    placeholder={
+                      brand
+                        ? catalogModels[0]
+                          ? `Es. ${catalogModels[0].name}`
+                          : "Scrivi il modello"
+                        : "Prima scegli la marca"
+                    }
                     value={model}
-                    onChange={(e) => setModel(e.target.value)}
+                    onChange={(e) => {
+                      setModel(e.target.value);
+                      resetResult();
+                    }}
                     required
+                    disabled={!brand}
                   />
+                  <datalist id="model-catalog">
+                    {catalogModels.map((m) => (
+                      <option key={m.name} value={m.name} />
+                    ))}
+                  </datalist>
+                  {brand && catalogModels.length > 0 && (
+                    <p className="mt-1.5 text-[11px] text-slate-500">
+                      Suggeriti dal catalogo:{" "}
+                      {catalogModels
+                        .slice(0, 4)
+                        .map((m) => m.name)
+                        .join(", ")}
+                      {catalogModels.length > 4 ? "…" : ""}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -152,7 +210,10 @@ export function SellCar() {
                     id="year"
                     className={fieldClass}
                     value={year}
-                    onChange={(e) => setYear(e.target.value)}
+                    onChange={(e) => {
+                      setYear(e.target.value);
+                      resetResult();
+                    }}
                   >
                     {YEARS.map((y) => (
                       <option key={y} value={y}>
@@ -172,7 +233,10 @@ export function SellCar() {
                     className={fieldClass}
                     placeholder="Es. 120000"
                     value={mileage}
-                    onChange={(e) => setMileage(e.target.value)}
+                    onChange={(e) => {
+                      setMileage(e.target.value);
+                      resetResult();
+                    }}
                     required
                   />
                 </div>
@@ -185,9 +249,10 @@ export function SellCar() {
                     id="fuel"
                     className={fieldClass}
                     value={fuel}
-                    onChange={(e) =>
-                      setFuel(e.target.value as ValuationInput["fuel"])
-                    }
+                    onChange={(e) => {
+                      setFuel(e.target.value as ValuationInput["fuel"]);
+                      resetResult();
+                    }}
                   >
                     {FUEL_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -205,11 +270,12 @@ export function SellCar() {
                     id="transmission"
                     className={fieldClass}
                     value={transmission}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setTransmission(
                         e.target.value as ValuationInput["transmission"],
-                      )
-                    }
+                      );
+                      resetResult();
+                    }}
                   >
                     {TRANSMISSION_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -229,7 +295,10 @@ export function SellCar() {
                       <button
                         key={opt.value}
                         type="button"
-                        onClick={() => setCondition(opt.value)}
+                        onClick={() => {
+                          setCondition(opt.value);
+                          resetResult();
+                        }}
                         className={`rounded-lg border px-3 py-2.5 text-left transition ${
                           active
                             ? "border-primary bg-primary-soft shadow-sm"
@@ -258,8 +327,12 @@ export function SellCar() {
                 </p>
               )}
 
-              <Button type="submit" variant="primary" className="mt-5 w-full py-3 sm:w-auto">
-                Calcola stima
+              <Button
+                type="submit"
+                variant="primary"
+                className="mt-5 w-full py-3 sm:w-auto"
+              >
+                Calcola fascia di ritiro
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </form>
@@ -274,49 +347,56 @@ export function SellCar() {
                       Risultato
                     </p>
                     <p className="mt-2 text-lg font-bold text-slate-900">
-                      La tua stima comparirà qui
+                      Fascia di ritiro indicativa
                     </p>
                     <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                      Compila il form e ottieni una forbice di valore. Poi puoi
-                      inviarmi i dati su WhatsApp per una proposta concreta.
+                      Se il modello è in catalogo la stima è più precisa. Poi
+                      invii tutto su WhatsApp e Alberto conferma.
                     </p>
                     <ul className="mt-5 space-y-2 text-sm text-slate-600">
                       <li className="flex gap-2">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                        Nessun obbligo e nessun costo
+                        Catalogo modelli calibrato sul ritiro dealer
                       </li>
                       <li className="flex gap-2">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                        Risposta diretta da Alberto
+                        Nessun obbligo, risposta diretta
                       </li>
                       <li className="flex gap-2">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                        Valutazione finale dopo verifica
+                        Valore finale solo dopo verifica
                       </li>
                     </ul>
                   </div>
                 ) : (
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Stima indicativa · affidabilità{" "}
-                      {result.confidence}
+                      {confidenceLabel(result.confidence)}
                     </p>
                     <p className="mt-2 text-sm text-slate-600">
                       Fascia di ritiro stimata
+                      {result.matchedModel
+                        ? ` · ${brand} ${result.matchedModel}`
+                        : ""}
                     </p>
                     <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-                      {formatEuro(result.low)} a {formatEuro(result.high)}
+                      da {formatEuro(result.low)} a {formatEuro(result.high)}
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
-                      Valore medio di riferimento:{" "}
+                      Riferimento medio:{" "}
                       <span className="font-semibold text-slate-800">
                         {formatEuro(result.mid)}
                       </span>
                     </p>
 
-                    <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
-                      <div className="h-full w-[72%] rounded-full bg-primary" />
+                    <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className={`h-full rounded-full transition-all ${confidenceBar(result.confidence)}`}
+                      />
                     </div>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                      {result.note}
+                    </p>
 
                     {waHref ? (
                       <Button
@@ -327,7 +407,7 @@ export function SellCar() {
                         className="mt-5 w-full py-3"
                       >
                         <MessageCircle className="h-4 w-4" />
-                        Invia stima su WhatsApp
+                        Conferma con Alberto su WhatsApp
                       </Button>
                     ) : (
                       <p className="mt-5 text-sm text-amber-700">

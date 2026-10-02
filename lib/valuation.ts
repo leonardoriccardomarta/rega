@@ -1,32 +1,15 @@
+import {
+  BRAND_FALLBACKS,
+  findBrandFallback,
+  findCatalogModel,
+  modelsForBrand,
+  type CatalogModel,
+} from "@/lib/valuation-catalog";
+
+export { modelsForBrand, findCatalogModel } from "@/lib/valuation-catalog";
+
 export const CAR_BRANDS = [
-  "Abarth",
-  "Alfa Romeo",
-  "Audi",
-  "BMW",
-  "Citroën",
-  "Cupra",
-  "Dacia",
-  "Fiat",
-  "Ford",
-  "Honda",
-  "Hyundai",
-  "Jeep",
-  "Kia",
-  "Lancia",
-  "Mazda",
-  "Mercedes-Benz",
-  "Mini",
-  "Nissan",
-  "Opel",
-  "Peugeot",
-  "Renault",
-  "Seat",
-  "Skoda",
-  "Suzuki",
-  "Toyota",
-  "Volkswagen",
-  "Volvo",
-  "Altro",
+  ...BRAND_FALLBACKS.map((b) => b.brand),
 ] as const;
 
 export const FUEL_OPTIONS = [
@@ -65,113 +48,171 @@ export type ValuationResult = {
   mid: number;
   high: number;
   confidence: "alta" | "media" | "indicativa";
-};
-
-const BRAND_BASE: Record<string, number> = {
-  abarth: 14500,
-  "alfa romeo": 16000,
-  audi: 24000,
-  bmw: 25000,
-  "citroën": 12000,
-  citroen: 12000,
-  cupra: 22000,
-  dacia: 10000,
-  fiat: 11000,
-  ford: 13000,
-  honda: 15000,
-  hyundai: 14000,
-  jeep: 18000,
-  kia: 14000,
-  lancia: 10000,
-  mazda: 15000,
-  "mercedes-benz": 26000,
-  mercedes: 26000,
-  mini: 17000,
-  nissan: 13000,
-  opel: 12000,
-  peugeot: 13000,
-  renault: 12000,
-  seat: 13000,
-  skoda: 14000,
-  suzuki: 12000,
-  toyota: 16000,
-  volkswagen: 17000,
-  volvo: 22000,
-  altro: 13000,
+  matchedModel: string | null;
+  source: "modello" | "marca" | "generica";
+  note: string;
 };
 
 const FUEL_FACTOR: Record<ValuationInput["fuel"], number> = {
   benzina: 1,
-  diesel: 0.97,
-  hybrid: 1.08,
+  diesel: 0.96,
+  hybrid: 1.1,
   plugin: 1.12,
-  electric: 1.05,
-  lpg: 0.92,
+  electric: 0.98,
+  lpg: 0.9,
 };
 
 const TRANSMISSION_FACTOR: Record<ValuationInput["transmission"], number> = {
   manual: 1,
-  automatic: 1.06,
+  automatic: 1.05,
 };
 
 const CONDITION_FACTOR: Record<ValuationInput["condition"], number> = {
-  excellent: 1.08,
+  excellent: 1.07,
   good: 1,
-  fair: 0.88,
-  poor: 0.72,
+  fair: 0.86,
+  poor: 0.7,
 };
+
+/** km/anno tipici Italia per usate di ritiro */
+const KM_PER_YEAR = 15000;
+const REF_AGE = 5;
+const REF_KM = REF_AGE * KM_PER_YEAR;
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 function roundTo500(value: number) {
-  return Math.max(500, Math.round(value / 500) * 500);
+  return Math.max(800, Math.round(value / 500) * 500);
+}
+
+/** Deprezzamento non lineare: più forte dopo i 3 anni, poi rallenta */
+function ageFactor(age: number, hold: number) {
+  const clamped = Math.max(0, Math.min(age, 22));
+  let factor = 1;
+  for (let y = 0; y < clamped; y += 1) {
+    const yearly =
+      y < 3 ? 0.88 : y < 8 ? 0.91 : y < 14 ? 0.93 : 0.95;
+    factor *= yearly;
+  }
+  // hold sposta la curva (Toyota tiene meglio)
+  const holdAdj = 1 + (hold - 1) * Math.min(clamped / 8, 1.2);
+  return factor * holdAdj;
+}
+
+function kmFactor(age: number, mileage: number) {
+  const expected = Math.max(age, 1) * KM_PER_YEAR;
+  const ratio = mileage / expected;
+  if (ratio > 1.6) return 0.78;
+  if (ratio > 1.35) return 0.85;
+  if (ratio > 1.15) return 0.92;
+  if (ratio < 0.55) return 1.1;
+  if (ratio < 0.75) return 1.05;
+  return 1;
+}
+
+function trimBoost(modelText: string) {
+  const t = modelText.toLowerCase();
+  if (/amg|m sport|\bm\d\b|rs[3-7]|gti|gtd|cupra|s-line|s line|abarth/.test(t)) {
+    return 1.08;
+  }
+  if (/business|executive|lounge|cross|allroad|4x4|awd|quattro|xdrive/.test(t)) {
+    return 1.03;
+  }
+  if (/van|n1|autocarro/.test(t)) return 0.92;
+  return 1;
+}
+
+function resolveBase(input: ValuationInput): {
+  buyInAt5y: number;
+  hold: number;
+  matched: CatalogModel | null;
+  source: ValuationResult["source"];
+} {
+  const matched = findCatalogModel(input.brand, input.model);
+  if (matched) {
+    return {
+      buyInAt5y: matched.buyInAt5y,
+      hold: matched.hold ?? 1,
+      matched,
+      source: "modello",
+    };
+  }
+  const brand = findBrandFallback(input.brand);
+  return {
+    buyInAt5y: brand.buyInAt5y,
+    hold: brand.hold ?? 0.92,
+    matched: null,
+    source: brand.brand === "Altro" ? "generica" : "marca",
+  };
 }
 
 export function estimateCarValue(input: ValuationInput): ValuationResult {
-  const brandKey = input.brand.trim().toLowerCase();
-  const base = BRAND_BASE[brandKey] ?? BRAND_BASE.altro;
-
   const age = Math.max(0, CURRENT_YEAR - input.year);
-  const yearFactor = Math.pow(0.9, Math.min(age, 18)) * (age > 18 ? 0.85 : 1);
+  const { buyInAt5y, hold, matched, source } = resolveBase(input);
 
-  const expectedKm = Math.max(age, 1) * 14000;
-  const kmRatio = input.mileage / expectedKm;
-  let kmFactor = 1;
-  if (kmRatio > 1.35) kmFactor = 0.82;
-  else if (kmRatio > 1.15) kmFactor = 0.9;
-  else if (kmRatio < 0.7) kmFactor = 1.08;
-  else if (kmRatio < 0.85) kmFactor = 1.04;
-
-  const modelBoost =
-    /amg|m sport|gti|rs|s-line|tipo|panda|500|golf|serie [13]|classe a|yaris|corsa/i.test(
-      input.model,
-    )
-      ? 1.04
-      : 1;
+  // Porta il riferimento 5y/75k al veicolo reale
+  const atRef =
+    buyInAt5y /
+    (ageFactor(REF_AGE, hold) * kmFactor(REF_AGE, REF_KM));
 
   const midRaw =
-    base *
-    yearFactor *
-    kmFactor *
+    atRef *
+    ageFactor(age, hold) *
+    kmFactor(age, input.mileage) *
     FUEL_FACTOR[input.fuel] *
     TRANSMISSION_FACTOR[input.transmission] *
     CONDITION_FACTOR[input.condition] *
-    modelBoost;
+    trimBoost(input.model);
+
+  // Fascia di ritiro: più ampia = più onesta
+  let spreadLow = 0.14;
+  let spreadHigh = 0.12;
+  if (source === "marca") {
+    spreadLow = 0.18;
+    spreadHigh = 0.15;
+  }
+  if (source === "generica" || age > 14 || input.condition === "poor") {
+    spreadLow = 0.24;
+    spreadHigh = 0.18;
+  }
+  if (age <= 2 && source === "modello") {
+    spreadLow = 0.1;
+    spreadHigh = 0.1;
+  }
 
   const mid = roundTo500(midRaw);
-  const spread = age <= 3 ? 0.1 : age <= 8 ? 0.12 : 0.15;
-  const low = roundTo500(mid * (1 - spread));
-  const high = roundTo500(mid * (1 + spread));
+  const low = roundTo500(mid * (1 - spreadLow));
+  const high = roundTo500(mid * (1 + spreadHigh));
 
   let confidence: ValuationResult["confidence"] = "media";
-  if (input.model.trim().length >= 3 && age <= 12 && input.mileage > 0) {
+  if (source === "modello" && age <= 12 && input.condition !== "poor") {
     confidence = "alta";
   }
-  if (brandKey === "altro" || age > 15 || input.condition === "poor") {
+  if (
+    source === "generica" ||
+    age > 15 ||
+    input.condition === "poor" ||
+    input.mileage > 280000
+  ) {
     confidence = "indicativa";
   }
 
-  return { low, mid, high, confidence };
+  const note =
+    source === "modello"
+      ? `Fascia di ritiro calibrata sul modello ${matched!.name}.`
+      : source === "marca"
+        ? "Modello non in catalogo: fascia basata sulla marca (più ampia)."
+        : "Dati limitati: fascia generica, da confermare con Alberto.";
+
+  return {
+    low,
+    mid,
+    high,
+    confidence,
+    matchedModel: matched?.name ?? null,
+    source,
+    note,
+  };
 }
 
 export function formatEuro(value: number) {
@@ -199,13 +240,17 @@ export function valuationWhatsAppMessage(
     "Ciao Alberto, vorrei una valutazione per venderti la mia auto.",
     "",
     `• ${input.brand} ${input.model}`,
+    result.matchedModel
+      ? `• Match catalogo: ${result.matchedModel}`
+      : "• Match catalogo: non trovato (stima su marca)",
     `• Anno: ${input.year}`,
     `• Km: ${input.mileage.toLocaleString("it-IT")}`,
     `• Alimentazione: ${fuel}`,
     `• Cambio: ${transmission}`,
     `• Condizioni: ${condition}`,
     "",
-    `Stima dal sito: da ${formatEuro(result.low)} a ${formatEuro(result.high)}`,
+    `Fascia ritiro indicativa: da ${formatEuro(result.low)} a ${formatEuro(result.high)}`,
+    `Affidabilità: ${result.confidence}`,
     "Mi confermi se ha senso e come procedere?",
   ].join("\n");
 }
