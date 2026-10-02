@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
-import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
+import { Inter } from "next/font/google";
 import { SITE } from "@/lib/constants";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
@@ -19,12 +16,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl),
   title: `${SITE.name} | Auto usate a Treviglio`,
   description:
-    "Auto usate a Treviglio (BG). Vetrina aggiornata e contatto diretto su WhatsApp. Niente moduli complicati.",
+    "Compro e vendo auto usate a Treviglio (BG). Vetrina aggiornata, stima gratuita e contatto diretto su WhatsApp.",
   robots: { index: true, follow: true },
   openGraph: {
     title: `${SITE.name} | Auto usate a Treviglio`,
     description:
-      "Guarda le auto in vendita e contattami su WhatsApp. Treviglio e provincia di Bergamo.",
+      "Guarda le auto in vendita o stima la tua. Contatto diretto su WhatsApp. Treviglio e provincia di Bergamo.",
     locale: "it_IT",
     type: "website",
   },
@@ -36,12 +33,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="it" className={`${jakarta.variable} h-full`}>
-      <body className="min-h-full font-sans antialiased">
-        <Header />
-        <main className="pb-0 md:pb-0">{children}</main>
-        <Footer />
-        <StickyMobileCta />
+    <html lang="it" className={`${inter.variable} h-full`}>
+      <body className="min-h-full bg-slate-50 font-sans text-slate-900 antialiased tracking-tight">
+        {children}
       </body>
     </html>
   );

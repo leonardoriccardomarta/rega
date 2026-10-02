@@ -2,7 +2,7 @@
 
 import { type AnchorHTMLAttributes, type ButtonHTMLAttributes } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "whatsapp" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "whatsapp" | "ghost" | "outline";
 
 type SharedProps = {
   variant?: ButtonVariant;
@@ -20,17 +20,19 @@ export type ButtonProps = ButtonOnlyProps | LinkProps;
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white border border-primary hover:bg-transparent hover:text-primary shadow-soft",
+    "bg-primary text-white shadow-md hover:bg-primary-dark hover:shadow-lg",
   secondary:
-    "bg-transparent text-white border border-white/35 hover:bg-white/10",
+    "bg-slate-900 text-white shadow-md hover:bg-slate-800 hover:shadow-lg",
+  outline:
+    "border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50",
   whatsapp:
-    "bg-[#25D366] text-white border border-[#25D366] hover:bg-[#1fb855] shadow-soft",
+    "bg-[#25D366] text-white shadow-md hover:bg-[#1fb855] hover:shadow-lg",
   ghost:
-    "bg-white text-midnight border border-slate-200 hover:border-primary/40 shadow-soft",
+    "border border-slate-200 bg-white text-slate-800 shadow-sm hover:border-primary/30 hover:bg-primary-soft/60",
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]";
+  "inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 export function Button({
   variant = "primary",

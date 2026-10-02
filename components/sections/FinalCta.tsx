@@ -11,20 +11,19 @@ export function FinalCta() {
   return (
     <section
       id={SECTION_IDS.contatti}
-      className="bg-midnight pt-14 pb-8 text-white md:py-28"
+      className="bg-slate-900 py-10 text-white md:py-16"
     >
       <SectionContainer>
         <FadeIn>
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl md:text-5xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-balance text-2xl font-bold tracking-tight md:text-3xl">
               {FINAL_CTA.headline}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-white/65 md:mt-5 md:text-lg">
+            <p className="mt-3 text-sm leading-relaxed text-slate-300 md:text-base">
               {FINAL_CTA.subheadline}
             </p>
 
-            {/* Sticky bar already covers WhatsApp/call on mobile */}
-            <div className="mt-7 hidden flex-col items-center justify-center gap-3 sm:flex-row md:mt-8 md:flex">
+            <div className="mt-6 flex flex-col items-stretch justify-center gap-2 sm:flex-row sm:items-center sm:flex-wrap">
               {contact ? (
                 <>
                   <Button
@@ -32,18 +31,25 @@ export function FinalCta() {
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="whatsapp"
-                    className="min-w-[200px] px-6 py-3.5 text-base"
+                    className="px-5 py-3"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </Button>
                   <Button
                     href={contact.telHref}
-                    variant="secondary"
-                    className="min-w-[200px] px-6 py-3.5 text-base"
+                    variant="outline"
+                    className="border-slate-600 bg-transparent text-white hover:bg-white/10"
                   >
-                    <Phone className="h-5 w-5" />
+                    <Phone className="h-4 w-4" />
                     {contact.phoneDisplay}
+                  </Button>
+                  <Button
+                    href={`#${SECTION_IDS.stima}`}
+                    variant="ghost"
+                    className="border-slate-600 bg-transparent text-white hover:bg-white/10"
+                  >
+                    Stima la tua auto
                   </Button>
                 </>
               ) : (
@@ -55,15 +61,11 @@ export function FinalCta() {
               )}
             </div>
 
-            <p className="mt-5 text-sm text-white/55 md:hidden">
-              Usa WhatsApp o chiama dalla barra in basso.
-            </p>
-
             <a
               href={SITE.subitoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 text-sm text-white/50 transition hover:text-white md:mt-6"
+              className="mt-5 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
             >
               Oppure apri lo shop Subito
               <ExternalLink className="h-4 w-4" />

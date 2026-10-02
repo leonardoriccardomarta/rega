@@ -34,13 +34,16 @@ export function getContactLinks(): ContactLinks | null {
   };
 }
 
-export function whatsappHrefForCar(carTitle: string): string | null {
-  const base = getContactLinks();
-  if (!base) return null;
+export function whatsappHrefWithMessage(message: string): string | null {
   const phone = normalizePhone(
     process.env.NEXT_PUBLIC_CONTACT_PHONE ?? process.env.CONTACT_PHONE,
   );
   if (!phone) return null;
-  const message = `Ciao, ti contatto dal sito: sono interessato a ${carTitle}.`;
   return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+export function whatsappHrefForCar(carTitle: string): string | null {
+  return whatsappHrefWithMessage(
+    `Ciao, ti contatto dal sito: sono interessato a ${carTitle}.`,
+  );
 }

@@ -1,4 +1,4 @@
-import { MessageCircle, Phone } from "lucide-react";
+import { CheckCircle2, MessageCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { SectionContainer } from "@/components/ui/SectionContainer";
@@ -19,118 +19,98 @@ export function Hero({
   const contact = getContactLinks();
 
   return (
-    <section className="relative overflow-hidden bg-hero pt-24 pb-12 md:pt-36 md:pb-24">
+    <section className="border-b border-slate-200/80 bg-gradient-to-b from-white to-primary-soft/40 py-8 md:py-12">
       <SectionContainer>
-        <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-8">
-          <FadeIn className="lg:col-span-7">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary sm:text-sm">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
+          <FadeIn className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-slate-900 md:text-base">
               {SITE.name}
             </p>
-            <p className="mt-1.5 text-sm text-black/50">{SITE.areaLine}</p>
+            <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+              {SITE.areaLine}
+            </p>
 
-            <h1 className="mt-4 text-balance text-[1.85rem] font-semibold leading-[1.12] tracking-tight text-midnight sm:mt-5 sm:text-5xl lg:text-6xl">
+            <h1 className="mt-4 text-balance text-3xl font-bold tracking-tight text-slate-900 md:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
               {HERO.headline}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-black/65 sm:mt-6 sm:text-lg md:text-xl">
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-base">
               {HERO.subheadline}
             </p>
 
-            <div className="mt-5 rounded-2xl border border-primary/15 bg-white/80 px-3.5 py-2.5 text-[13px] font-medium text-black/70 shadow-soft backdrop-blur-sm sm:mt-6 sm:px-4 sm:py-3 sm:text-sm">
-              <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                {TRUST_ITEMS.map((item, index) => (
-                  <span key={item} className="inline-flex items-center">
-                    {index > 0 && (
-                      <span className="mr-2 text-primary/40" aria-hidden="true">
-                        •
-                      </span>
-                    )}
-                    {item}
-                  </span>
-                ))}
-              </p>
-            </div>
+            <ul className="mt-4 space-y-1.5">
+              {TRUST_ITEMS.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-center gap-2 text-sm text-slate-700"
+                >
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+                  {item}
+                </li>
+              ))}
+            </ul>
 
-            <div className="mt-7 hidden flex-col gap-3 sm:flex-row sm:flex-wrap md:flex">
-              {contact ? (
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Button href={`#${SECTION_IDS.inventario}`} variant="primary">
+                {HERO.inventoryCta}
+              </Button>
+              <Button href={`#${SECTION_IDS.stima}`} variant="outline">
+                {HERO.sellCta}
+              </Button>
+              {contact && (
                 <>
                   <Button
                     href={contact.whatsappHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="whatsapp"
-                    className="px-6 py-3.5 text-base"
+                    className="hidden sm:inline-flex"
                   >
-                    <MessageCircle className="h-5 w-5" />
+                    <MessageCircle className="h-4 w-4" />
                     {HERO.whatsappCta}
                   </Button>
                   <Button
                     href={contact.telHref}
                     variant="ghost"
-                    className="px-6 py-3.5 text-base"
+                    className="hidden sm:inline-flex"
                   >
-                    <Phone className="h-5 w-5" />
+                    <Phone className="h-4 w-4" />
                     {HERO.callCta}
                   </Button>
-                  <Button
-                    href={`#${SECTION_IDS.inventario}`}
-                    variant="primary"
-                    className="px-6 py-3.5 text-base"
-                  >
-                    Vedi le auto
-                  </Button>
                 </>
-              ) : (
-                <Button href={`#${SECTION_IDS.inventario}`} variant="primary">
-                  Vedi le auto in vetrina
-                </Button>
               )}
-            </div>
-
-            <div className="mt-5 md:hidden">
-              <Button
-                href={`#${SECTION_IDS.inventario}`}
-                variant="primary"
-                className="w-full py-3.5"
-              >
-                Scorri le auto in vetrina
-              </Button>
             </div>
           </FadeIn>
 
-          <FadeIn delay={120} className="lg:col-span-5">
-            <div className="relative mx-auto max-w-lg lg:mr-0 lg:ml-auto">
-              <div className="absolute -inset-4 rounded-[1.75rem] bg-gradient-to-br from-primary/10 to-sky-200/40 blur-2xl md:-inset-6 md:rounded-[2rem]" />
-              <div className="relative overflow-hidden rounded-[1.5rem] shadow-feature md:rounded-[2rem]">
-                {featuredImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={featuredImage}
-                    alt={featuredTitle || "Auto in vetrina"}
-                    className="h-[240px] w-full object-cover sm:h-[300px] md:h-[400px]"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                ) : (
-                  <div className="flex h-[240px] w-full flex-col justify-end bg-[linear-gradient(160deg,#0b1f33,#1e3a5f)] p-6 sm:h-[300px] md:h-[400px] md:p-7">
-                    <p className="text-sm font-semibold text-sky-200">
-                      Come funziona
-                    </p>
-                    <p className="mt-2 text-xl font-semibold text-white md:text-2xl">
-                      Guardi la vetrina, mi scrivi, chiudiamo senza giri.
-                    </p>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-midnight/65 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white sm:p-6">
-                  <p className="text-xs font-medium text-white/80 sm:text-sm">
-                    {featuredTitle ? "In evidenza ora" : "Come funziona"}
+          <FadeIn delay={100} className="w-full lg:max-w-md lg:shrink-0">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
+              {featuredImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={featuredImage}
+                  alt={featuredTitle || "Auto in vetrina"}
+                  className="aspect-[16/10] w-full object-cover"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              ) : (
+                <div className="flex aspect-[16/10] w-full flex-col justify-end bg-gradient-to-br from-slate-900 to-slate-700 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary-light">
+                    Come funziona
                   </p>
-                  <p className="mt-0.5 line-clamp-2 text-base font-semibold sm:text-lg">
-                    {featuredTitle
-                      ? `${featuredTitle}${featuredPrice ? ` · ${featuredPrice}` : ""}`
-                      : "Guardi, mi scrivi, chiudiamo"}
+                  <p className="mt-1 text-lg font-bold text-white">
+                    Guardi la vetrina, mi scrivi, chiudiamo senza giri.
                   </p>
                 </div>
+              )}
+              <div className="border-t border-slate-100 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {featuredTitle ? "In evidenza ora" : "Inizia da qui"}
+                </p>
+                <p className="mt-1 line-clamp-2 text-sm font-semibold text-slate-900 md:text-base">
+                  {featuredTitle
+                    ? `${featuredTitle}${featuredPrice ? ` · ${featuredPrice}` : ""}`
+                    : "Vetrina aggiornata · Stima gratuita"}
+                </p>
               </div>
             </div>
           </FadeIn>

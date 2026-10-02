@@ -30,7 +30,7 @@ export function PhotoCarousel({
 
   return (
     <div
-      className="relative min-h-[220px] overflow-hidden bg-slate-900 sm:min-h-[320px] lg:h-full lg:min-h-[420px]"
+      className="relative aspect-[16/10] overflow-hidden bg-slate-900 sm:aspect-[16/11] lg:aspect-auto lg:min-h-[360px] lg:h-full"
       onTouchStart={(e) => {
         touchX.current = e.changedTouches[0]?.clientX ?? null;
       }}
@@ -54,57 +54,57 @@ export function PhotoCarousel({
           fetchPriority={priority && index === 0 ? "high" : "auto"}
         />
       ) : (
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(14,165,233,0.28),transparent_45%),linear-gradient(160deg,#0f172a,#1e293b)]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-950" />
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent" />
 
       {list.length > 1 && (
         <>
           <button
             type="button"
             onClick={() => go(-1)}
-            className="absolute left-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-md sm:left-3 sm:h-10 sm:w-10"
+            className="absolute left-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/95 text-slate-900 shadow-sm sm:h-9 sm:w-9"
             aria-label="Foto precedente"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => go(1)}
-            className="absolute right-2 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-md sm:right-3 sm:h-10 sm:w-10"
+            className="absolute right-2 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/95 text-slate-900 shadow-sm sm:h-9 sm:w-9"
             aria-label="Foto successiva"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" />
           </button>
 
-          <div className="absolute bottom-[4.25rem] left-0 right-0 z-10 flex justify-center gap-1.5 px-4 sm:bottom-[4.75rem]">
+          <div className="absolute bottom-14 left-0 right-0 z-10 flex justify-center gap-1.5 px-4">
             {list.map((_, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => setIndex(i)}
                 className={`h-1.5 rounded-full transition-all ${
-                  i === index ? "w-6 bg-white" : "w-1.5 bg-white/45"
+                  i === index ? "w-5 bg-white" : "w-1.5 bg-white/45"
                 }`}
                 aria-label={`Vai alla foto ${i + 1}`}
               />
             ))}
           </div>
 
-          <div className="absolute right-3 top-3 z-10 rounded-full bg-black/50 px-2.5 py-1 text-[11px] font-medium text-white">
+          <div className="absolute right-2 top-2 z-10 rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-medium text-white">
             {index + 1}/{list.length}
           </div>
         </>
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 sm:p-5">
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-3 sm:p-4">
         {badge && (
-          <span className="mb-2 inline-block rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white">
+          <span className="mb-1.5 inline-block rounded-md bg-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
             {badge}
           </span>
         )}
-        <p className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <p className="text-xl font-bold tracking-tight text-white sm:text-2xl">
           {priceLabel}
         </p>
       </div>

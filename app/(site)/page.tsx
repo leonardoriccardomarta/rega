@@ -2,6 +2,7 @@ import { About } from "@/components/sections/About";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero } from "@/components/sections/Hero";
 import { Inventory } from "@/components/sections/Inventory";
+import { SellCar } from "@/components/sections/SellCar";
 import { WhyMe } from "@/components/sections/WhyMe";
 import { coverPhoto } from "@/lib/cars";
 import { listCars } from "@/lib/storage";
@@ -34,6 +35,7 @@ export default async function Home() {
         featuredPrice={featured ? formatPrice(featured.price) : undefined}
       />
       <Inventory initialCars={cars} />
+      <SellCar />
       <WhyMe />
       <About />
       <FinalCta />

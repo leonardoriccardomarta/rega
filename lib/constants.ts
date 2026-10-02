@@ -1,7 +1,7 @@
 export const SITE = {
   name: "Alberto Regantini",
   title: "Auto usate a Treviglio",
-  tagline: "Le auto che vendo, spiegate bene",
+  tagline: "Compro e vendo auto usate, senza giri di parole",
   areaLine: "Treviglio (BG) e provincia di Bergamo",
   subitoUrl:
     process.env.NEXT_PUBLIC_SUBITO_URL?.trim() ||
@@ -10,6 +10,7 @@ export const SITE = {
 
 export const SECTION_IDS = {
   inventario: "inventario",
+  stima: "stima",
   perche: "perche",
   chiSono: "chi-sono",
   contatti: "contatti",
@@ -17,24 +18,26 @@ export const SECTION_IDS = {
 
 export const NAV_LINKS = [
   { label: "In vetrina", href: `#${SECTION_IDS.inventario}` },
+  { label: "Vendi la tua", href: `#${SECTION_IDS.stima}` },
   { label: "Come lavoro", href: `#${SECTION_IDS.perche}` },
   { label: "Chi sono", href: `#${SECTION_IDS.chiSono}` },
   { label: "Contatti", href: `#${SECTION_IDS.contatti}` },
 ] as const;
 
 export const HERO = {
-  headline: "L’auto giusta, senza perdere tempo al telefono.",
+  headline: "Compro e vendo auto usate a Treviglio.",
   subheadline:
-    "A Treviglio scelgo e vendo auto usate con schede chiare. Guardi le foto, mi scrivi su WhatsApp e ti dico subito se c’è ancora e come possiamo vederla.",
-  whatsappCta: "Scrivimi su WhatsApp",
-  callCta: "Chiamami",
-  subitoCta: "Apri lo shop Subito",
+    "Vetrina aggiornata, schede chiare e contatto diretto su WhatsApp. Cerchi un’usata o vuoi vendere la tua? Ti rispondo io, senza call center.",
+  whatsappCta: "WhatsApp",
+  callCta: "Chiama",
+  inventoryCta: "Vedi le auto",
+  sellCta: "Stima la tua auto",
 } as const;
 
 export const TRUST_ITEMS = [
   "Treviglio · Bergamo",
   "Contatto diretto",
-  "Foto e dati aggiornati",
+  "Compro e vendo",
   "Niente call center",
 ] as const;
 
@@ -52,29 +55,38 @@ export const WHY_POINTS = [
       "Prezzo, km, anno e condizioni in evidenza. Se qualcosa non torna, lo chiarisco prima che tu perda tempo.",
   },
   {
+    id: "acquisto",
+    title: "Compro anche la tua",
+    description:
+      "Valuto auto usate in zona: stima indicativa online, poi conferma diretta e proposta chiara.",
+  },
+  {
     id: "locale",
     title: "Qui vicino a te",
     description:
-      "Lavoro da Treviglio: comodo se cerchi un’usata in provincia di Bergamo senza girare mezza Lombardia.",
-  },
-  {
-    id: "prova",
-    title: "Si chiude di persona",
-    description:
-      "Quando un’auto ti convince, ci sentiamo e la vediamo insieme. Niente sorprese dell’ultimo minuto.",
+      "Lavoro da Treviglio: comodo se cerchi o vendi un’usata in provincia di Bergamo.",
   },
 ] as const;
 
 export const ABOUT = {
   name: "Alberto Regantini",
   description:
-    "Vendo auto usate a Treviglio. Questo sito è la mia vetrina: le macchine che ho in questo momento, con foto, dati e un contatto diretto. Se qualcosa ti interessa, partiamo da WhatsApp.",
+    "A Treviglio compro e vendo auto usate. Questo sito è la mia vetrina e il punto dove puoi stimare la tua macchina in pochi minuti. Se qualcosa ti interessa, partiamo da WhatsApp.",
   quote:
-    "Preferisco una chat chiara a dieci chiamate a vuoto. Se l’auto c’è, te lo dico subito.",
+    "Preferisco una chat chiara a dieci chiamate a vuoto. Se l’auto c’è — o se la compro — te lo dico subito.",
+} as const;
+
+export const SELL = {
+  eyebrow: "Vendimi la tua auto",
+  title: "Stima gratuita in pochi minuti",
+  subtitle:
+    "Inserisci i dati principali: ricevi una forbice di valore indicativa e puoi inviarmela su WhatsApp per una conferma reale.",
+  disclaimer:
+    "La stima è indicativa e non vincolante. Il valore definitivo lo concordiamo dopo valutazione di foto, documenti e stato reale del veicolo.",
 } as const;
 
 export const FINAL_CTA = {
-  headline: "Hai visto un’auto che ti interessa?",
+  headline: "Cerchi un’auto o vuoi venderla?",
   subheadline:
-    "Scrivimi il modello su WhatsApp: ti rispondo sulla disponibilità e organizziamo il passo successivo.",
+    "Scrivimi su WhatsApp: ti rispondo sulla disponibilità in vetrina o sulla valutazione della tua macchina.",
 } as const;

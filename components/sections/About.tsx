@@ -4,23 +4,26 @@ import { ABOUT, SECTION_IDS, SITE } from "@/lib/constants";
 
 export function About() {
   return (
-    <section id={SECTION_IDS.chiSono} className="bg-slate-50/60 py-14 md:py-28">
+    <section
+      id={SECTION_IDS.chiSono}
+      className="border-y border-slate-200/80 bg-white py-10 md:py-16"
+    >
       <SectionContainer>
         <FadeIn>
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+          <div className="mx-auto max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">
               Chi sono
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-midnight md:text-5xl">
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
               {ABOUT.name}
             </h2>
-            <p className="mt-6 text-lg leading-relaxed text-black/60">
+            <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
               {ABOUT.description}
             </p>
-            <blockquote className="mt-8 rounded-2xl border border-slate-200/80 bg-white px-6 py-5 text-base italic leading-relaxed text-midnight/80 shadow-soft md:text-lg">
+            <blockquote className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-relaxed text-slate-800 md:text-base">
               “{ABOUT.quote}”
             </blockquote>
-            <p className="mt-6 text-sm text-muted">{SITE.areaLine}</p>
+            <p className="mt-4 text-sm text-slate-500">{SITE.areaLine}</p>
           </div>
         </FadeIn>
       </SectionContainer>

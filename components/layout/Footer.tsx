@@ -3,19 +3,19 @@ import { SectionContainer } from "@/components/ui/SectionContainer";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-midnight pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-8 text-white md:pb-10 md:pt-10">
-      <SectionContainer className="flex flex-col gap-3 text-center md:gap-4">
-        <p className="text-base font-semibold md:text-lg">{SITE.name}</p>
-        <p className="text-sm text-white/50">{SITE.areaLine}</p>
+    <footer className="border-t border-slate-200 bg-white/80 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-8 md:pb-10 md:pt-10">
+      <SectionContainer className="flex flex-col gap-2 text-center md:gap-3">
+        <p className="text-sm font-bold text-slate-900 md:text-base">{SITE.name}</p>
+        <p className="text-sm text-slate-500">{SITE.areaLine}</p>
         <a
           href={SITE.subitoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium text-sky-300 hover:underline"
+          className="text-sm font-medium text-primary hover:underline"
         >
           Shop Subito Impresa+
         </a>
-        <p className="text-xs text-white/35">
+        <p className="text-xs text-slate-400">
           © {new Date().getFullYear()} {SITE.name}. Tutti i diritti riservati.
         </p>
       </SectionContainer>
