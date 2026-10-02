@@ -1,4 +1,4 @@
-import { ExternalLink, MessageCircle, Phone } from "lucide-react";
+import { Calculator, ExternalLink, MessageCircle, Phone } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { SectionContainer } from "@/components/ui/SectionContainer";
@@ -11,19 +11,19 @@ export function FinalCta() {
   return (
     <section
       id={SECTION_IDS.contatti}
-      className="bg-slate-900 py-10 text-white md:py-16"
+      className="border-t border-slate-200 bg-gradient-to-b from-primary-soft/50 to-white py-10 md:py-16"
     >
       <SectionContainer>
         <FadeIn>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-balance text-2xl font-bold tracking-tight md:text-3xl">
+          <div className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm md:p-8">
+            <h2 className="text-balance text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
               {FINAL_CTA.headline}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300 md:text-base">
+            <p className="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">
               {FINAL_CTA.subheadline}
             </p>
 
-            <div className="mt-6 flex flex-col items-stretch justify-center gap-2 sm:flex-row sm:items-center sm:flex-wrap">
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
               {contact ? (
                 <>
                   <Button
@@ -31,7 +31,7 @@ export function FinalCta() {
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="whatsapp"
-                    className="px-5 py-3"
+                    className="w-full px-5 py-3 sm:w-auto"
                   >
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
@@ -39,23 +39,26 @@ export function FinalCta() {
                   <Button
                     href={contact.telHref}
                     variant="outline"
-                    className="border-slate-600 bg-transparent text-white hover:bg-white/10"
+                    className="w-full px-5 py-3 sm:w-auto"
                   >
                     <Phone className="h-4 w-4" />
                     {contact.phoneDisplay}
                   </Button>
                   <Button
                     href={`#${SECTION_IDS.stima}`}
-                    variant="ghost"
-                    className="border-slate-600 bg-transparent text-white hover:bg-white/10"
+                    variant="primary"
+                    className="w-full px-5 py-3 sm:w-auto"
                   >
+                    <Calculator className="h-4 w-4" />
                     Stima la tua auto
                   </Button>
                 </>
               ) : (
-                <p className="text-sm text-sky-200/90">
+                <p className="text-sm text-slate-600">
                   Aggiungi il numero in{" "}
-                  <code className="text-sky-100">NEXT_PUBLIC_CONTACT_PHONE</code>{" "}
+                  <code className="rounded bg-slate-100 px-1.5 py-0.5 text-slate-800">
+                    NEXT_PUBLIC_CONTACT_PHONE
+                  </code>{" "}
                   per attivare i contatti.
                 </p>
               )}
@@ -65,7 +68,7 @@ export function FinalCta() {
               href={SITE.subitoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+              className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
             >
               Oppure apri lo shop Subito
               <ExternalLink className="h-4 w-4" />

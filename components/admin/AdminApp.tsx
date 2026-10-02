@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import {
   ArrowDown,
   ArrowUp,
+  Car,
   Eye,
   EyeOff,
   Loader2,
@@ -102,6 +103,18 @@ function toDraft(car: CarListing): Draft {
   };
 }
 
+const inputClass =
+  "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20";
+
+const btnSecondary =
+  "inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50";
+
+const btnPrimary =
+  "inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary-dark disabled:opacity-50";
+
+const btnIcon =
+  "rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 disabled:opacity-30";
+
 export function AdminApp() {
   const [checking, setChecking] = useState(true);
   const [authed, setAuthed] = useState(false);
@@ -153,7 +166,6 @@ export function AdminApp() {
       );
       return;
     }
-    // Full reload so the auth cookie is definitely sent on the next requests.
     window.location.assign("/admin");
   }
 
@@ -323,46 +335,47 @@ export function AdminApp() {
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-500">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!authed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
         <form
           onSubmit={handleLogin}
-          className="w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-8"
+          className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:p-8"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
+          <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+            <Car className="h-[18px] w-[18px]" />
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
             Area riservata
           </p>
-          <h1 className="mt-3 text-2xl font-semibold text-white">
+          <h1 className="mt-1 text-xl font-bold text-slate-900">
             Gestione vetrina
           </h1>
-          <p className="mt-2 text-sm text-white/55">
-            Alberto Regantini — titolo, descrizione, caratteristiche e link
-            Subito.
+          <p className="mt-2 text-sm text-slate-600">
+            Alberto Regantini — aggiungi, modifica e pubblica le auto.
           </p>
-          <label className="mt-6 block text-sm text-white/70">
+          <label className="mt-6 block text-xs font-semibold text-slate-600">
             Password
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none focus:border-sky-400"
+              className={`mt-1.5 ${inputClass}`}
               autoFocus
             />
           </label>
           {authError && (
-            <p className="mt-3 text-sm text-rose-400">{authError}</p>
+            <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              {authError}
+            </p>
           )}
-          <button
-            type="submit"
-            className="mt-6 w-full rounded-full bg-sky-500 px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-400"
-          >
+          <button type="submit" className={`mt-5 w-full ${btnPrimary}`}>
             Entra
           </button>
         </form>
@@ -371,40 +384,145 @@ export function AdminApp() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <header className="border-b border-white/10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-400">
-              Admin
-            </p>
-            <h1 className="text-lg font-semibold">Showcase auto</h1>
+    <div className="min-h-screen bg-slate-50 pb-10">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white">
+              <Car className="h-[18px] w-[18px]" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Admin
+              </p>
+              <h1 className="truncate text-sm font-bold text-slate-900 md:text-base">
+                Showcase auto
+              </h1>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <a
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="rounded-full border border-white/15 px-4 py-2 text-sm text-white/70 hover:bg-white/5"
+              className={`${btnSecondary} hidden sm:inline-flex`}
             >
               Vedi landing
             </a>
             <button
               type="button"
               onClick={() => void handleLogout()}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-white/70 hover:bg-white/5"
+              className={btnSecondary}
             >
               <LogOut className="h-4 w-4" />
-              Esci
+              <span className="hidden sm:inline">Esci</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-[1.25fr_0.75fr]">
-        <section className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 md:p-8">
+      <main className="mx-auto grid max-w-6xl gap-5 px-4 py-5 md:px-6 md:py-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-6">
+        {/* On mobile: list first so Alberto can pick a car quickly */}
+        <aside className="order-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:order-2 lg:p-5">
+          <h3 className="text-base font-bold text-slate-900">Auto nello showcase</h3>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500 md:text-sm">
+            <strong className="font-semibold text-slate-700">Modifica</strong> ·
+            stella = hero · occhio = pubblica/nascondi
+          </p>
+          <ul className="mt-4 space-y-3">
+            {cars.length === 0 && (
+              <li className="rounded-lg border border-dashed border-slate-200 px-3 py-6 text-center text-sm text-slate-500">
+                Nessuna auto ancora.
+              </li>
+            )}
+            {cars.map((car) => (
+              <li
+                key={car.id}
+                className={`rounded-xl border bg-slate-50/80 p-3 ${
+                  draft.id === car.id
+                    ? "border-primary ring-2 ring-primary/15"
+                    : car.featured
+                      ? "border-amber-300"
+                      : "border-slate-200"
+                }`}
+              >
+                <div className="flex gap-3">
+                  <div className="h-16 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-200">
+                    {(() => {
+                      const cover = coverPhoto(car);
+                      return cover ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={cover}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null;
+                    })()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {car.featured ? "★ " : ""}
+                      {car.title}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {car.price.toLocaleString("it-IT")} € ·{" "}
+                      {car.published ? "online" : "nascosta"}
+                      {car.featured ? " · in evidenza" : ""}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(car)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-primary/25 bg-primary-soft px-2.5 py-1 text-xs font-semibold text-primary-dark"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Modifica
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void setFeatured(car)}
+                        className={`${btnIcon} ${
+                          car.featured ? "text-amber-500" : ""
+                        }`}
+                        aria-label="Metti in evidenza"
+                        title="In evidenza sull’hero"
+                      >
+                        <Star
+                          className={`h-4 w-4 ${car.featured ? "fill-current" : ""}`}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void togglePublished(car)}
+                        className={btnIcon}
+                        aria-label={car.published ? "Nascondi" : "Pubblica"}
+                      >
+                        {car.published ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(car.id)}
+                        className={`${btnIcon} hover:text-rose-600`}
+                        aria-label="Elimina"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        <section className="order-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:p-6 lg:order-1">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-lg font-bold text-slate-900 md:text-xl">
               {draft.id ? "Modifica auto" : "Nuova auto"}
             </h2>
             {draft.id && (
@@ -414,18 +532,14 @@ export function AdminApp() {
                   setDraft(emptyDraft());
                   setPhotoDirty(false);
                 }}
-                className="text-sm text-white/50 hover:text-white"
+                className="text-sm font-medium text-slate-500 hover:text-slate-800"
               >
                 Annulla
               </button>
             )}
           </div>
 
-          <form
-            ref={formRef}
-            onSubmit={handleSave}
-            className="mt-6 space-y-4"
-          >
+          <form ref={formRef} onSubmit={handleSave} className="mt-5 space-y-4">
             <Field label="Titolo annuncio *">
               <input
                 required
@@ -460,13 +574,13 @@ export function AdminApp() {
                 placeholder="https://www.subito.it/auto/...htm"
                 className={inputClass}
               />
-              <span className="mt-1 block text-xs text-white/40">
+              <span className="mt-1 block text-xs text-slate-500">
                 Non usare il link dello shop: apri l&apos;annuncio e copia
                 l&apos;URL della singola auto.
               </span>
             </Field>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3">
               <Field label="Prezzo (€)">
                 <input
                   required
@@ -502,11 +616,11 @@ export function AdminApp() {
               </Field>
             </div>
 
-            <p className="pt-2 text-xs font-semibold uppercase tracking-widest text-sky-400/90">
+            <p className="pt-1 text-xs font-semibold uppercase tracking-wide text-primary">
               Informazioni di base
             </p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Marca">
                 <input
                   value={draft.brand}
@@ -650,12 +764,12 @@ export function AdminApp() {
             </Field>
 
             <div>
-              <p className="mb-2 text-sm text-white/65">
+              <p className="mb-2 text-xs font-semibold text-slate-600">
                 Foto ({draft.photos.length}/{MAX_PHOTOS}) — la prima è la
                 copertina
               </p>
               <div className="flex flex-col gap-3">
-                <label className="inline-flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 px-4 py-2.5 text-sm hover:bg-white/5">
+                <label className={`w-fit cursor-pointer ${btnSecondary}`}>
                   {uploading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
@@ -683,25 +797,25 @@ export function AdminApp() {
                     {draft.photos.map((photo, index) => (
                       <li
                         key={`${index}-${photo.slice(0, 24)}`}
-                        className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/60 p-2"
+                        className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-2"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={photo}
                           alt={`Foto ${index + 1}`}
-                          className="h-14 w-20 rounded-lg object-cover"
+                          className="h-14 w-20 rounded-md object-cover"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs text-white/60">
+                          <p className="text-xs font-medium text-slate-600">
                             {index === 0 ? "Copertina" : `Foto ${index + 1}`}
                           </p>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-0.5">
                           <button
                             type="button"
                             onClick={() => movePhoto(index, -1)}
                             disabled={index === 0}
-                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 disabled:opacity-30"
+                            className={btnIcon}
                             aria-label="Sposta su"
                           >
                             <ArrowUp className="h-4 w-4" />
@@ -710,7 +824,7 @@ export function AdminApp() {
                             type="button"
                             onClick={() => movePhoto(index, 1)}
                             disabled={index === draft.photos.length - 1}
-                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 disabled:opacity-30"
+                            className={btnIcon}
                             aria-label="Sposta giù"
                           >
                             <ArrowDown className="h-4 w-4" />
@@ -718,7 +832,7 @@ export function AdminApp() {
                           <button
                             type="button"
                             onClick={() => removePhoto(index)}
-                            className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-rose-300"
+                            className={`${btnIcon} hover:text-rose-600`}
                             aria-label="Rimuovi foto"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -728,32 +842,40 @@ export function AdminApp() {
                     ))}
                   </ul>
                 )}
-                <p className="text-xs text-white/40">
+                <p className="text-xs text-slate-500">
                   Max 2.5 MB per foto. Su mobile nella landing si scorrono con
                   swipe.
                 </p>
               </div>
             </div>
 
-            <label className="flex items-center gap-3 text-sm text-white/70">
+            <label className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
               <input
                 type="checkbox"
                 checked={draft.published}
                 onChange={(e) =>
                   setDraft((p) => ({ ...p, published: e.target.checked }))
                 }
-                className="h-4 w-4 rounded border-white/20"
+                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
               />
               Pubblica nello showcase della landing
             </label>
 
-            {error && <p className="text-sm text-rose-400">{error}</p>}
-            {message && <p className="text-sm text-emerald-400">{message}</p>}
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
+            )}
+            {message && (
+              <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                {message}
+              </p>
+            )}
 
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-400 disabled:opacity-50"
+              className={`w-full py-3 ${btnPrimary}`}
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -766,104 +888,6 @@ export function AdminApp() {
             </button>
           </form>
         </section>
-
-        <aside className="rounded-3xl border border-white/10 bg-slate-900/70 p-6">
-          <h3 className="font-semibold">Auto nello showcase</h3>
-          <p className="mt-1 text-sm text-white/45">
-            Premi <strong className="font-medium text-white/70">Modifica</strong>{" "}
-            per i dati. Stella = in evidenza sull’hero. Occhio =
-            pubblica/nascondi.
-          </p>
-          <ul className="mt-4 space-y-3">
-            {cars.length === 0 && (
-              <li className="text-sm text-white/45">Nessuna auto ancora.</li>
-            )}
-            {cars.map((car) => (
-              <li
-                key={car.id}
-                className={`rounded-2xl border bg-slate-950/50 p-3 ${
-                  draft.id === car.id
-                    ? "border-sky-400/50"
-                    : car.featured
-                      ? "border-amber-400/40"
-                      : "border-white/10"
-                }`}
-              >
-                <div className="flex gap-3">
-                  <div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-800">
-                    {(() => {
-                      const cover = coverPhoto(car);
-                      return cover ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={cover}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      ) : null;
-                    })()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">
-                      {car.featured ? "★ " : ""}
-                      {car.title}
-                    </p>
-                    <p className="text-xs text-white/45">
-                      {car.price.toLocaleString("it-IT")} € ·{" "}
-                      {car.published ? "online" : "nascosta"}
-                      {car.featured ? " · in evidenza" : ""}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEdit(car)}
-                        className="inline-flex items-center gap-1 rounded-full border border-sky-400/40 px-3 py-1 text-xs font-medium text-sky-200 hover:bg-sky-400/10"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        Modifica
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void setFeatured(car)}
-                        className={`rounded-lg p-1.5 hover:bg-white/5 ${
-                          car.featured
-                            ? "text-amber-300"
-                            : "text-white/50 hover:text-amber-200"
-                        }`}
-                        aria-label="Metti in evidenza"
-                        title="In evidenza sull’hero"
-                      >
-                        <Star
-                          className={`h-4 w-4 ${car.featured ? "fill-current" : ""}`}
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void togglePublished(car)}
-                        className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-sky-300"
-                        aria-label={car.published ? "Nascondi" : "Pubblica"}
-                      >
-                        {car.published ? (
-                          <Eye className="h-4 w-4" />
-                        ) : (
-                          <EyeOff className="h-4 w-4" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void handleDelete(car.id)}
-                        className="rounded-lg p-1.5 text-white/50 hover:bg-white/5 hover:text-rose-300"
-                        aria-label="Elimina"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </aside>
       </main>
     </div>
   );
@@ -877,12 +901,9 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-sm text-white/65">
-      <span className="mb-2 block">{label}</span>
+    <label className="block text-xs font-semibold text-slate-600">
+      <span className="mb-1.5 block">{label}</span>
       {children}
     </label>
   );
 }
-
-const inputClass =
-  "w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-sky-400";
