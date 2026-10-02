@@ -73,7 +73,7 @@ export const ABOUT = {
   description:
     "A Treviglio compro e vendo auto usate. Questo sito è la mia vetrina e il punto dove puoi stimare la tua macchina in pochi minuti. Se qualcosa ti interessa, partiamo da WhatsApp.",
   quote:
-    "Preferisco una chat chiara a dieci chiamate a vuoto. Se l’auto c’è — o se la compro — te lo dico subito.",
+    "Preferisco una chat chiara a dieci chiamate a vuoto. Se l’auto c’è, o se la compro, te lo dico subito.",
 } as const;
 
 export const SELL = {

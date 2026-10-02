@@ -305,7 +305,7 @@ export function SellCar() {
                       Fascia di ritiro stimata
                     </p>
                     <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-                      {formatEuro(result.low)} – {formatEuro(result.high)}
+                      {formatEuro(result.low)} a {formatEuro(result.high)}
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
                       Valore medio di riferimento:{" "}

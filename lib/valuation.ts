@@ -205,7 +205,7 @@ export function valuationWhatsAppMessage(
     `• Cambio: ${transmission}`,
     `• Condizioni: ${condition}`,
     "",
-    `Stima dal sito: ${formatEuro(result.low)} – ${formatEuro(result.high)}`,
+    `Stima dal sito: da ${formatEuro(result.low)} a ${formatEuro(result.high)}`,
     "Mi confermi se ha senso e come procedere?",
   ].join("\n");
 }
