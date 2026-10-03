@@ -65,3 +65,8 @@
     text-wrap: balance;
   }
 }
+
+/* Nasconde la barra WhatsApp mentre il menu mobile è aperto */
+body[data-menu-open="true"] .sticky-mobile-cta {
+  display: none;
+}
