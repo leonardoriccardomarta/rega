@@ -3,7 +3,7 @@ import { SectionContainer } from "@/components/ui/SectionContainer";
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white/80 pb-[calc(4.75rem+env(safe-area-inset-bottom))] pt-8 md:pb-10 md:pt-10">
+    <footer className="border-t border-slate-200 bg-white/80 py-8 md:py-10">
       <SectionContainer className="flex flex-col gap-2 text-center md:gap-3">
         <p className="text-sm font-bold text-slate-900 md:text-base">{SITE.name}</p>
         <p className="text-sm text-slate-500">{SITE.areaLine}</p>
